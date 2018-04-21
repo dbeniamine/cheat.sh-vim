@@ -29,7 +29,7 @@ Add the following to your Vundle Plugin list (not tested, but should work) :
 ### Quick install
 
     git clone https://github.com/dbeniamine/cheat.sh-vim.git
-    cd vim-mail/
+    cd cheat.sh-vim/
     cp -r ./* ~/.vim
 
 ## Features
