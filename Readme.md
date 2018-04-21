@@ -1,6 +1,6 @@
 # Vim Cheat.sh
 
-This is a highly configurable vim plugin to browse cheat sheat from
+This is a highly configurable vim plugin to browse cheat sheet from
 [cheat.sh](https://github.com/chubin/cheat.sh) directly from vim.
 
 ## Install
@@ -42,17 +42,20 @@ Every parameter used to retrieve and display the cheat sheet can be changed, to
 do so, just put the following in you vimrc and ajust to your needs (these are
 the default values that will be used if you do not change them) :
 
-    " View command padoc etc.
-    let g:CheatSheatReaderCmd='view -c "set ft=markdown"'
+    " Vim command used to open new buffer
+    let g:CheatSheetReaderCmd='new"'
+
+    " Cheat sheet file type
+    let g:CheatSheetFt='markdown'
 
     " Program used to retrieve cheat sheet with its arguments
-    let g:CheatSheatUrlGetter='curl -silent'
+    let g:CheatSheetUrlGetter='curl --silent'
 
     " cheat sheet base url
-    let g:CheatSheatBaseUrl='cheat.sh'
+    let g:CheatSheetBaseUrl='cheat.sh'
 
     " cheat sheet settings
-    let g:CheatSheatUrlSettings='Tq'
+    let g:CheatSheetUrlSettings='Tq'
 
 ## License
 

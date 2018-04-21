@@ -19,49 +19,48 @@
 let g:save_cpo = &cpo
 set cpo&vim
 
-" View command padoc etc.
-if(!exists("g:CheatSheatReaderCmd"))
-    let g:CheatSheatReaderCmd='view -c "set ft=markdown"'
+" Vim command used to open new buffer
+if(!exists("g:CheatSheetReaderCmd"))
+    let g:CheatSheetReaderCmd='new'
+endif
+
+" Cheat sheet file type
+if(!exists("g:CheatSheetFt"))
+    let g:CheatSheetFt='markdown'
 endif
 
 " Program used to retrieve cheat sheet with its arguments
-if(!exists("g:CheatSheatUrlGetter"))
-    let g:CheatSheatUrlGetter='curl -silent'
+if(!exists("g:CheatSheetUrlGetter"))
+    let g:CheatSheetUrlGetter='curl --silent'
 endif
 
 " cheat sheet base url
-if(!exists("g:CheatSheatBaseUrl"))
-    let g:CheatSheatBaseUrl='cheat.sh'
+if(!exists("g:CheatSheetBaseUrl"))
+    let g:CheatSheetBaseUrl='cheat.sh'
 endif
 
 " cheat sheet settings
-if(!exists("g:CheatSheatUrlSettings"))
-    let g:CheatSheatUrlSettings='Tq'
+if(!exists("g:CheatSheetUrlSettings"))
+    let g:CheatSheetUrlSettings='Tq'
 endif
 
-function! cheat#geturl(query, type)
-    let cmd=g:CheatSheatUrlGetter.' "'.g:CheatSheatBaseUrl.'/'.a:query.'?'.
-                \g:CheatSheatUrlSettings.'"'
-    if(a:type == "list")
-        return systemlist(cmd)
-    else
+function! cheat#geturl(query, run)
+    let cmd=g:CheatSheetUrlGetter.' "'.g:CheatSheetBaseUrl.'/'.a:query.'?'.
+                \g:CheatSheetUrlSettings.'"'
+    if(a:run)
         return system(cmd)
+    else
+        return cmd
     endif
 endfunction
 
 function! cheat#completeargs(A, L, P)
-    return cheat#geturl(':list', "string")
+    return cheat#geturl(':list', 1)
 endfunction
 
 function! cheat#cheat(query)
-    let tmpfile=tempname()
-    let contents=cheat#geturl(a:query, "list")
-    execute 'redir > '.tmpfile
-    " Remove everything until first empty line and print the contents
-    silent echo join(contents[match(contents,'^$'):],"\n")
-    redir END
-    " Read the temporary file
-    execute ':!'.g:CheatSheatReaderCmd.' '.tmpfile
+    execute ':'.g:CheatSheetReaderCmd.' +set\ bt=nofile\ ft='.g:CheatSheetFt.
+                \' | 0read ! '.cheat#geturl(a:query, 0)
 endfunction
 
 let cpo=save_cpo
