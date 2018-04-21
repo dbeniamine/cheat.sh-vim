@@ -11,20 +11,41 @@
 " This program is distributed in the hope that it will be useful,
 " but WITHOUT ANY WARRANTY; without even the implied warranty of
 " MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-" GNU Affero General Public License for more details.
+" GNU General Public License for more details.
 " 
-" You should have received a copy of the GNU Affero General Public License
+" You should have received a copy of the GNU General Public License
 " along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 let g:save_cpo = &cpo
 set cpo&vim
 
+" View command padoc etc.
+if(!exists("g:CheatSheatReaderCmd"))
+    let g:CheatSheatReaderCmd='view -c "set ft=markdown"'
+endif
+
+" Program used to retrieve cheat sheet with its arguments
+if(!exists("g:CheatSheatUrlGetter"))
+    let g:CheatSheatUrlGetter='curl -silent'
+endif
+
+" cheat sheet base url
+if(!exists("g:CheatSheatBaseUrl"))
+    let g:CheatSheatBaseUrl='cheat.sh'
+endif
+
+" cheat sheet settings
+if(!exists("g:CheatSheatUrlSettings"))
+    let g:CheatSheatUrlSettings='Tq'
+endif
+
 function! cheat#geturl(query, type)
-    let url="cheat.sh/".a:query."/?T"
+    let cmd=g:CheatSheatUrlGetter.' "'.g:CheatSheatBaseUrl.'/'.a:query.'?'.
+                \g:CheatSheatUrlSettings.'"'
     if(a:type == "list")
-        return systemlist("curl -silent '".url."'")
+        return systemlist(cmd)
     else
-        return system("curl -silent '".url."'")
+        return system(cmd)
     endif
 endfunction
 

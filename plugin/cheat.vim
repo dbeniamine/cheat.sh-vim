@@ -11,9 +11,9 @@
 " This program is distributed in the hope that it will be useful,
 " but WITHOUT ANY WARRANTY; without even the implied warranty of
 " MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-" GNU Affero General Public License for more details.
+" GNU General Public License for more details.
 " 
-" You should have received a copy of the GNU Affero General Public License
+" You should have received a copy of the GNU General Public License
 " along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 if exists("g:loaded_cheat_sh")
@@ -24,11 +24,6 @@ let g:save_cpo = &cpo
 set cpo&vim
 
 let g:loaded_cheat_sh = "v0.1"
-
-" vim command padoc etc.
-if(!exists("g:CheatSheatReaderCmd"))
-    let g:CheatSheatReaderCmd='view -c "set ft=markdown"'
-endif
 
 " command definition
 command! -nargs=1 -complete=custom,cheat#completeargs Cheat
