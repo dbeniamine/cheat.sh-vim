@@ -12,6 +12,12 @@ can run from vim:
 
     :Invoke -u dbeniamine cheat.sh-vim
 
+### Vundle
+
+Add the following to your Vundle Plugin list (not tested, but should work) :
+
+    Plugin 'dbeniamine/cheat.sh-vim'
+
 ### Pathogen install
 
     git clone https://github.com/dbeniamine/cheat.sh-vim.git ~/.vim/bundle/cheat.sh-vim
