@@ -3,6 +3,10 @@
 This is a highly configurable vim plugin to browse cheat sheet from
 [cheat.sh](https://github.com/chubin/cheat.sh) directly from vim.
 
+There is an asciinema showing how it works :
+
+[![asciicast](https://asciinema.org/a/c6QRIhus7np2OOQzmQ2RNXzRZ.png)](https://asciinema.org/a/c6QRIhus7np2OOQzmQ2RNXzRZ)
+
 ## Install
 
 ### Vizardry
