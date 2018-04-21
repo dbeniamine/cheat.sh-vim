@@ -61,6 +61,7 @@ endfunction
 function! cheat#cheat(query)
     execute ':'.g:CheatSheetReaderCmd.' +set\ bt=nofile\ ft='.g:CheatSheetFt.
                 \' | 0read ! '.cheat#geturl(a:query, 0)
+    normal gg
 endfunction
 
 let cpo=save_cpo
