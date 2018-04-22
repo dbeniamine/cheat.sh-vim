@@ -7,12 +7,12 @@
 " it under the terms of the GNU General Public License as published by
 " the Free Software Foundation, either version 3 of the License, or
 " (at your option) any later version.
-" 
+"
 " This program is distributed in the hope that it will be useful,
 " but WITHOUT ANY WARRANTY; without even the implied warranty of
 " MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 " GNU General Public License for more details.
-" 
+"
 " You should have received a copy of the GNU General Public License
 " along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -44,34 +44,44 @@ if(!exists("g:CheatSheetUrlSettings"))
     let g:CheatSheetUrlSettings='Tq'
 endif
 
+" Command to open a new buffer, need to specify ft
 let s:CheatSheetNewBuf=g:CheatSheetReaderCmd.' +set\ bt=nofile\ ft='
 
+" Returns the url to query
 function! cheat#geturl(query)
     return g:CheatSheetUrlGetter.' "'.g:CheatSheetBaseUrl.'/'.a:query.'?'.
                 \g:CheatSheetUrlSettings.'"'
 endfunction
 
+" Returns the list of available options
 function! cheat#completeargs(A, L, P)
     return system(cheat#geturl(':list'))
 endfunction
 
+" Handle a cheat query
 function! cheat#cheat(query, froml, tol, range, replace)
     if(a:query == "")
-        " No explicit query, Retrieve selected text
+        " No explicit query, prepare query from selection
         let text=s:get_visual_selection(a:froml,a:tol, a:range)
         let query=&ft.'/'.substitute(text, ' ', '+', 'g')
+
+        " There must be a + in the query
         if(match(query, '+') == -1)
             let query=query.'+'
         endif
+
         " Retrieve lines
         let lines=systemlist(cheat#geturl(query))
+
+        " Remove comments
         let new_lines=[]
-        
         for line in lines
             call add(new_lines, s:add_comments(line))
         endfor
+
+        " Print the line where they should be
         if(a:replace)
-            " Remove selection
+            " Remove selection (currently only line if whole line selected)
             if(a:range ==0)
                 normal dd
             endif
@@ -83,7 +93,7 @@ function! cheat#cheat(query, froml, tol, range, replace)
             normal gg
         endif
     else
-        " arbitrary query
+        " simple query
         let query=a:query
         execute ':'.s:CheatSheetNewBuf.g:CheatSheetFt.
                     \ ' | 0read ! '.cheat#geturl(query)
@@ -91,6 +101,7 @@ function! cheat#cheat(query, froml, tol, range, replace)
     endif
 endfunction
 
+" Returns the line, commented if it is not code
 function! s:add_comments(line)
     " Count number of spaces at beginning of line (probably a better way
     " to do it
@@ -106,6 +117,7 @@ function! s:add_comments(line)
     endif
 endfunction
 
+" Returns the text that is currently selected
 function! s:get_visual_selection(froml, tol, range)
     " Why is this not a built-in Vim script function?!
     if(a:range>0)
