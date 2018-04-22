@@ -58,26 +58,39 @@ function! cheat#cheat(query, froml, tol, range, replace)
         " No explicit query, Retrieve selected text
         let text=s:get_visual_selection(a:froml,a:tol, a:range)
         let query=&ft.'/+'.substitute(text, ' ', '+', 'g')
-    else
-        let query=a:query
-    endif
-    if(a:replace)
-        " Remove selection
-        if(a:range ==0)
-            normal dd
-        endif
         " Retrieve lines
         let lines=systemlist(cheat#geturl(query))
         let new_lines=[]
+        
         for line in lines
-            if(match(strpart(line, 0, 3), '\S', '') == -1)
-                call add(new_lines,strpart(line, 4))
+            " Count number of spaces at beginning of line (probably a better way
+            " to do it
+            let i=0
+            while (line[i] == ' ')
+                let i=i+1
+            endwhile
+            " Comment everthing that is not code
+            if(i>2)
+                call add(new_lines,strpart(line, i))
             else
                 call add(new_lines,substitute(&cms, "%s", line, ''))
             endif
         endfor
-        call append(getcurpos()[1], new_lines)
+        if(a:replace)
+            " Remove selection
+            if(a:range ==0)
+                normal dd
+            endif
+            call append(getcurpos()[1], new_lines)
+        else
+            " Put lines in a new buffer
+            execute ':'.g:CheatSheetReaderCmd.' +set\ bt=nofile\ ft='.&ft
+            call append(0, new_lines)
+            normal gg
+        endif
     else
+        " arbitrary query
+        let query=a:query
         execute ':'.g:CheatSheetReaderCmd.' +set\ bt=nofile\ ft='.
                     \ g:CheatSheetFt.' | 0read ! '.cheat#geturl(query)
         normal gg
