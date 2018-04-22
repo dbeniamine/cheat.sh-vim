@@ -32,15 +32,17 @@ command! -nargs=? -range -complete=custom,cheat#completeargs Cheat
 command! -nargs=? -range -complete=custom,cheat#completeargs CheatReplace
     \ call cheat#cheat(<q-args>, <line1>, <line2>, <range>, 1)
 
-nnoremap <script> <silent> <localleader>Ch
-            \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 0)<CR>
-vnoremap <script> <silent> <localleader>Ch
-            \ :call cheat#cheat("", -1, -1, 2, 0)<CR>
-
-nnoremap <script> <silent> <localleader>CR
-            \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 1)<CR>
-vnoremap <script> <silent> <localleader>CR
-            \ :call cheat#cheat("", -1, -1, 2, 1)<CR>
+if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
+    nnoremap <script> <silent> <localleader>Ch
+                \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 0)<CR>
+    vnoremap <script> <silent> <localleader>Ch
+                \ :call cheat#cheat("", -1, -1, 2, 0)<CR>
+    
+    nnoremap <script> <silent> <localleader>CR
+                \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 1)<CR>
+    vnoremap <script> <silent> <localleader>CR
+                \ :call cheat#cheat("", -1, -1, 2, 1)<CR>
+endif
 
 let cpo=save_cpo
 " vim:set et sw=4:
