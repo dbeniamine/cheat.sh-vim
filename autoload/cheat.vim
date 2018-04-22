@@ -59,7 +59,10 @@ function! cheat#cheat(query, froml, tol, range, replace)
     if(a:query == "")
         " No explicit query, Retrieve selected text
         let text=s:get_visual_selection(a:froml,a:tol, a:range)
-        let query=&ft.'/+'.substitute(text, ' ', '+', 'g')
+        let query=&ft.'/'.substitute(text, ' ', '+', 'g')
+        if(match(query, '+') == -1)
+            let query=query.'+'
+        endif
         " Retrieve lines
         let lines=systemlist(cheat#geturl(query))
         let new_lines=[]
