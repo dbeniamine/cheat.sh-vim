@@ -50,8 +50,34 @@ function! cheat#geturl(query)
                 \g:CheatSheetUrlSettings.'"'
 endfunction
 
+function! cheat#echo(msg,type)
+  if a:type=='e'
+    let group='ErrorMsg'
+  elseif a:type=='w'
+    let group='WarningMsg'
+  elseif a:type=='q'
+    let group='Question'
+  elseif a:type=='s'
+    let group='Define'
+  elseif a:type=='D'
+    if !exists("g:CheatDebug")
+      return
+    else
+      let group='WarningMsg'
+    endif
+  else
+    let group='Normal'
+  endif
+  execute 'echohl '.group
+  echo a:msg
+  echohl None
+endfunction
+
+
+
 " Returns the list of available options
 function! cheat#completeargs(A, L, P)
+    call cheat#echo('Retrieving list of available cheat sheets', 'S')
     return system(cheat#geturl(':list'))
 endfunction
 
@@ -68,6 +94,8 @@ function! cheat#cheat(query, froml, tol, range, replace)
         endif
 
         " Retrieve lines
+        call cheat#echo('Sending query : "'.query.'" to '.g:CheatSheetBaseUrl.
+                    \' this may take some time', 'S')
         let lines=systemlist(cheat#geturl(query))
 
         " Remove comments
@@ -92,6 +120,8 @@ function! cheat#cheat(query, froml, tol, range, replace)
     else
         " simple query
         let ft=g:CheatSheetFt
+        call cheat#echo('Sending query : "'.a:query.'" to '.
+                    \g:CheatSheetBaseUrl.' this may take some time', 'S')
         let lines=systemlist(cheat#geturl(a:query))
     endif
     call s:OpenBuffer(ft, lines)
@@ -101,7 +131,7 @@ endfunction
 function! s:OpenBuffer(ft, lines)
     let bufname='_cheat.sh'
     let winnr = bufwinnr('^'.bufname.'$')
-    " Retrieve buffer or create it
+    " Retrieve buffer or create it
     if ( winnr >= 0 )
         execute winnr . 'wincmd w'
         execute 'normal ggdG'
@@ -116,7 +146,7 @@ function! s:OpenBuffer(ft, lines)
     normal gg
 endfunction
 
-" Returns the line, commented if it is not code
+" Returns the line, commented if it is not code
 function! s:add_comments(line)
     " Count number of spaces at beginning of line (probably a better way
     " to do it
