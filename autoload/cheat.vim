@@ -44,9 +44,6 @@ if(!exists("g:CheatSheetUrlSettings"))
     let g:CheatSheetUrlSettings='Tq'
 endif
 
-" Command to open a new buffer, need to specify ft
-let s:CheatSheetNewBuf=g:CheatSheetReaderCmd.' +set\ bt=nofile\ ft='
-
 " Returns the url to query
 function! cheat#geturl(query)
     return g:CheatSheetUrlGetter.' "'.g:CheatSheetBaseUrl.'/'.a:query.'?'.
@@ -86,19 +83,37 @@ function! cheat#cheat(query, froml, tol, range, replace)
                 normal dd
             endif
             call append(getcurpos()[1], new_lines)
-        else
-            " Put lines in a new buffer
-            execute ':'.s:CheatSheetNewBuf.&ft
-            call append(0, new_lines)
-            normal gg
+            return
         endif
+        " Put lines in a new buffer
+        call s:OpenBuffer(&ft, new_lines)
+        let ft=&ft
+        let lines=new_lines
     else
         " simple query
-        let query=a:query
-        execute ':'.s:CheatSheetNewBuf.g:CheatSheetFt.
-                    \ ' | 0read ! '.cheat#geturl(query)
-        normal gg
+        let ft=g:CheatSheetFt
+        let lines=systemlist(cheat#geturl(a:query))
     endif
+    call s:OpenBuffer(ft, lines)
+endfunction
+
+
+function! s:OpenBuffer(ft, lines)
+    let bufname='_cheat.sh'
+    let winnr = bufwinnr('^'.bufname.'$')
+    " Retrieve buffer or create it
+    if ( winnr >= 0 )
+        execute winnr . 'wincmd w'
+        execute 'normal ggdG'
+    else
+        execute ':'.g:CheatSheetReaderCmd.
+                \ ' +set\ bt=nofile\ bufhidden=wipe '.bufname
+    endif
+    " Update ft
+    execute ': set ft='.a:ft
+    " Add lines and go to beginning
+    call append(0, a:lines)
+    normal gg
 endfunction
 
 " Returns the line, commented if it is not code
