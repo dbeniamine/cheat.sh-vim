@@ -44,6 +44,8 @@ if(!exists("g:CheatSheetUrlSettings"))
     let g:CheatSheetUrlSettings='Tq'
 endif
 
+let s:CheatSheetNewBuf=g:CheatSheetReaderCmd.' +set\ bt=nofile\ ft='
+
 function! cheat#geturl(query)
     return g:CheatSheetUrlGetter.' "'.g:CheatSheetBaseUrl.'/'.a:query.'?'.
                 \g:CheatSheetUrlSettings.'"'
@@ -63,18 +65,7 @@ function! cheat#cheat(query, froml, tol, range, replace)
         let new_lines=[]
         
         for line in lines
-            " Count number of spaces at beginning of line (probably a better way
-            " to do it
-            let i=0
-            while (line[i] == ' ')
-                let i=i+1
-            endwhile
-            " Comment everthing that is not code
-            if(i>2)
-                call add(new_lines,strpart(line, i))
-            else
-                call add(new_lines,substitute(&cms, "%s", line, ''))
-            endif
+            call add(new_lines, s:add_comments(line))
         endfor
         if(a:replace)
             " Remove selection
@@ -84,16 +75,31 @@ function! cheat#cheat(query, froml, tol, range, replace)
             call append(getcurpos()[1], new_lines)
         else
             " Put lines in a new buffer
-            execute ':'.g:CheatSheetReaderCmd.' +set\ bt=nofile\ ft='.&ft
+            execute ':'.s:CheatSheetNewBuf.&ft
             call append(0, new_lines)
             normal gg
         endif
     else
         " arbitrary query
         let query=a:query
-        execute ':'.g:CheatSheetReaderCmd.' +set\ bt=nofile\ ft='.
-                    \ g:CheatSheetFt.' | 0read ! '.cheat#geturl(query)
+        execute ':'.s:CheatSheetNewBuf.g:CheatSheetFt.
+                    \ ' | 0read ! '.cheat#geturl(query)
         normal gg
+    endif
+endfunction
+
+function! s:add_comments(line)
+    " Count number of spaces at beginning of line (probably a better way
+    " to do it
+    let i=0
+    while (a:line[i] == ' ')
+        let i=i+1
+    endwhile
+    " Comment everthing that is not code
+    if(i>2)
+        return strpart(a:line, i)
+    else
+        return substitute(&cms, "%s", a:line, '')
     endif
 endfunction
 
