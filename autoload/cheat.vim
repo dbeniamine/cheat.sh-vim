@@ -104,7 +104,13 @@ function! cheat#next()
     else
         let query=substitute(query, '\d*$', num+1, '')
     endif
-    let lines=s:getlines(query)
+
+    if(s:prevrequest['do_comment'] == 1)
+        let lines=s:add_comments(s:getlines(query))
+    else
+        let lines=s:getlines(query)
+    endif
+
     call s:OpenBuffer(s:prevrequest['ft'], lines)
 endfunction
 
@@ -119,10 +125,18 @@ function! cheat#prev()
     if(num == "" || num == 0)
         call cheat#echo('There is no previous answer', 'e')
         return
+    elseif(num ==1)
+        let query=substitute(query, '\d*$', '', '')
     else
         let query=substitute(query, '\d*$', num-1, '')
     endif
-    let lines=s:getlines(query)
+
+    if(s:prevrequest['do_comment'] == 1)
+        let lines=s:add_comments(s:getlines(query))
+    else
+        let lines=s:getlines(query)
+    endif
+
     call s:OpenBuffer(s:prevrequest['ft'], lines)
 endfunction
 
@@ -140,13 +154,8 @@ function! cheat#cheat(query, froml, tol, range, replace)
         endif
 
         " Retrieve lines
-        let lines=s:getlines(query)
-
-        " Remove comments
-        let new_lines=[]
-        for line in lines
-            call add(new_lines, s:add_comments(line))
-        endfor
+        let lines=s:add_comments(s:getlines(query))
+        let s:prevrequest['do_comment'] = 1
 
         " Print the line where they should be
         if(a:replace)
@@ -154,16 +163,16 @@ function! cheat#cheat(query, froml, tol, range, replace)
             if(a:range ==0)
                 normal dd
             endif
-            call append(getcurpos()[1], new_lines)
+            call append(getcurpos()[1], lines)
             return
         endif
         " Put lines in a new buffer
-        call s:OpenBuffer(&ft, new_lines)
+        call s:OpenBuffer(&ft, lines)
         let ft=&ft
-        let lines=new_lines
     else
         " simple query
         let ft=g:CheatSheetFt
+        let s:prevrequest['do_comment'] = 0
         let lines=s:getlines(a:query)
     endif
     call s:OpenBuffer(ft, lines)
@@ -190,19 +199,23 @@ function! s:OpenBuffer(ft, lines)
 endfunction
 
 " Returns the line, commented if it is not code
-function! s:add_comments(line)
-    " Count number of spaces at beginning of line (probably a better way
-    " to do it
-    let i=0
-    while (a:line[i] == ' ')
-        let i=i+1
-    endwhile
-    " Comment everthing that is not code
-    if(i>2)
-        return strpart(a:line, i)
-    else
-        return substitute(&cms, "%s", a:line, '')
-    endif
+function! s:add_comments(lines)
+    let ret=[]
+    for line in a:lines
+        " Count number of spaces at beginning of line (probably a better way
+        " to do it
+        let i=0
+        while (line[i] == ' ')
+            let i=i+1
+        endwhile
+        " Comment everthing that is not code or blank line
+        if(i>2 || match(line, '^\s*$') !=-1)
+            call add(ret,strpart(line, i))
+        else
+            call add(ret,substitute(&cms, "%s", line, ''))
+        endif
+    endfor
+    return ret
 endfunction
 
 " Returns the text that is currently selected
