@@ -53,11 +53,17 @@ function! s:geturl(query)
 endfunction
 
 " Returns the url to query
-function! s:getlines(query)
+function! s:getlines(query, commented)
     call cheat#echo('Sending query : "'.a:query.'" to '.g:CheatSheetBaseUrl.
                 \ ' this may take some time', 'S')
+    sleep 2
     let s:prevrequest['query']=a:query
-    return systemlist(s:geturl(a:query))
+    let lines= systemlist(s:geturl(a:query))
+    let s:prevrequest['do_comment']=a:commented
+    if(a:commented)
+        return s:add_comments(lines)
+    endif
+    return lines
 endfunction
 
 " Print nice messages
@@ -90,54 +96,35 @@ function! cheat#completeargs(A, L, P)
     return system(s:geturl(":list"))
 endfunction
 
-" Lookup for next page
-function! cheat#next()
+" Lookup for previous or next answer (+- a:delta)
+function! cheat#neighbour(delta)
     if(empty(s:prevrequest))
-        call cheat#echo('This command can only be called after :Cheat or :CheatReplace',
-                    \'e')
+        call cheat#echo('You must first call :Cheat or :CheatReplace', 'e')
         return
     endif
+
+    " Retrieve last query number
     let query=s:prevrequest["query"]
     let num=matchstr(query, '\d*$')
+
+    " No number means answer 0
     if(num == "")
-        let query.='/1'
-    else
-        let query=substitute(query, '\d*$', num+1, '')
+        let num=0
+        let query.='/'
     endif
+    let num=num+a:delta
 
-    if(s:prevrequest['do_comment'] == 1)
-        let lines=s:add_comments(s:getlines(query))
-    else
-        let lines=s:getlines(query)
-    endif
-
-    call s:OpenBuffer(s:prevrequest['ft'], lines)
-endfunction
-
-" Lookup for previous page
-function! cheat#prev()
-    if(empty(s:prevrequest))
+    if(num <0)
         call cheat#echo('There is no previous answer', 'e')
         return
-    endif
-    let query=s:prevrequest["query"]
-    let num=matchstr(query, '\d*$')
-    if(num == "" || num == 0)
-        call cheat#echo('There is no previous answer', 'e')
-        return
-    elseif(num ==1)
-        let query=substitute(query, '\d*$', '', '')
+    elseif(num==0)
+        let query=substitute(query, '/\d*$', '', '')
     else
-        let query=substitute(query, '\d*$', num-1, '')
+        let query=substitute(query, '\d*$', num, '')
     endif
 
-    if(s:prevrequest['do_comment'] == 1)
-        let lines=s:add_comments(s:getlines(query))
-    else
-        let lines=s:getlines(query)
-    endif
-
-    call s:OpenBuffer(s:prevrequest['ft'], lines)
+    let lines=s:getlines(query, s:prevrequest['do_comment'])
+    call s:PrintLines(s:prevrequest['ft'], lines, 0)
 endfunction
 
 " Handle a cheat query
@@ -153,49 +140,44 @@ function! cheat#cheat(query, froml, tol, range, replace)
             let query=query.'+'
         endif
 
-        " Retrieve lines
-        let lines=s:add_comments(s:getlines(query))
-        let s:prevrequest['do_comment'] = 1
-
-        " Print the line where they should be
-        if(a:replace)
-            " Remove selection (currently only line if whole line selected)
-            if(a:range ==0)
-                normal dd
-            endif
-            call append(getcurpos()[1], lines)
-            return
+        if(a:replace && a:range ==0)
+           normal dd
         endif
-        " Put lines in a new buffer
-        call s:OpenBuffer(&ft, lines)
+        " Retrieve lines commented
+        let lines=s:getlines(query, 1)
         let ft=&ft
+
     else
         " simple query
         let ft=g:CheatSheetFt
-        let s:prevrequest['do_comment'] = 0
-        let lines=s:getlines(a:query)
+        let lines=s:getlines(a:query, 0)
     endif
-    call s:OpenBuffer(ft, lines)
+    call s:PrintLines(ft, lines, a:replace)
 endfunction
 
 
-function! s:OpenBuffer(ft, lines)
+function! s:PrintLines(ft, lines, replace)
     let s:prevrequest['ft']=a:ft
-    let bufname='_cheat.sh'
-    let winnr = bufwinnr('^'.bufname.'$')
-    " Retrieve buffer or create it
-    if ( winnr >= 0 )
-        execute winnr . 'wincmd w'
-        execute 'normal ggdG'
+    if(a:replace)
+        " Remove selection (currently only line if whole line selected)
+        call append(getcurpos()[1], a:lines)
     else
-        execute ':'.g:CheatSheetReaderCmd.
-                \ ' +set\ bt=nofile\ bufhidden=wipe '.bufname
+        let bufname='_cheat.sh'
+        let winnr = bufwinnr('^'.bufname.'$')
+        " Retrieve buffer or create it
+        if ( winnr >= 0 )
+            execute winnr . 'wincmd w'
+            execute 'normal ggdG'
+        else
+            execute ':'.g:CheatSheetReaderCmd.
+                    \ ' +set\ bt=nofile\ bufhidden=wipe '.bufname
+        endif
+        " Update ft
+        execute ': set ft='.a:ft
+        " Add lines and go to beginning
+        call append(0, a:lines)
+        normal gg
     endif
-    " Update ft
-    execute ': set ft='.a:ft
-    " Add lines and go to beginning
-    call append(0, a:lines)
-    normal gg
 endfunction
 
 " Returns the line, commented if it is not code

@@ -23,7 +23,7 @@ endif
 let g:save_cpo = &cpo
 set cpo&vim
 
-let g:loaded_cheat_sh = "v0.1"
+let g:loaded_cheat_sh = "v0.2-dev"
 
 " command definition
 command! -nargs=? -range -complete=custom,cheat#completeargs Cheat
@@ -46,12 +46,12 @@ if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
                 \ :call cheat#cheat("", -1, -1, 2, 1)<CR>
 
     " Next
-    nnoremap <script> <silent> <localleader>CN :call cheat#next()<CR>
-    vnoremap <script> <silent> <localleader>CN :call cheat#next()<CR>
+    nnoremap <script> <silent> <localleader>CN :call cheat#neighbour(1)<CR>
+    vnoremap <script> <silent> <localleader>CN :call cheat#neighbour(1)<CR>
 
     " Prev
-    nnoremap <script> <silent> <localleader>CP :call cheat#prev()<CR>
-    vnoremap <script> <silent> <localleader>CP :call cheat#prev()<CR>
+    nnoremap <script> <silent> <localleader>CP :call cheat#neighbour(-1)<CR>
+    vnoremap <script> <silent> <localleader>CP :call cheat#neighbour(-1)<CR>
 endif
 
 let cpo=save_cpo
