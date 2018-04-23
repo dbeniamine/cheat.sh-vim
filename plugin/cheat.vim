@@ -36,9 +36,9 @@ command! -nargs=1 CheatNaviguate call cheat#naviguate(<q-args>)
 
 if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
     " Cheat
-    nnoremap <script> <silent> <localleader>CB
+    nnoremap <script> <silent> <localleader>CQ
                 \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 0)<CR>
-    vnoremap <script> <silent> <localleader>CB
+    vnoremap <script> <silent> <localleader>CQ
                 \ :call cheat#cheat("", -1, -1, 2, 0)<CR>
 
     " Replace
