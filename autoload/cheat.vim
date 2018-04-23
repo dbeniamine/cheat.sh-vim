@@ -130,7 +130,8 @@ endfunction
 function! cheat#cheat(query, froml, tol, range, replace)
     if(a:query == "")
         " No explicit query, prepare query from selection
-        let text=s:get_visual_selection(a:froml,a:tol, a:range)
+        let text=substitute(s:get_visual_selection(a:froml,a:tol, a:range),
+                    \'^\s*', '', '')
         let query=&ft.'/'.substitute(text, ' ', '+', 'g')
 
         " There must be a + in the query
