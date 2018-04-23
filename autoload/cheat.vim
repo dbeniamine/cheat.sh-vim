@@ -44,12 +44,23 @@ if(!exists("g:CheatSheetUrlSettings"))
     let g:CheatSheetUrlSettings='Tq'
 endif
 
+let s:prevrequest={}
+
 " Returns the url to query
-function! cheat#geturl(query)
+function! s:geturl(query)
     return g:CheatSheetUrlGetter.' "'.g:CheatSheetBaseUrl.'/'.a:query.'?'.
                 \g:CheatSheetUrlSettings.'"'
 endfunction
 
+" Returns the url to query
+function! s:getlines(query)
+    call cheat#echo('Sending query : "'.a:query.'" to '.g:CheatSheetBaseUrl.
+                \ ' this may take some time', 'S')
+    let s:prevrequest['query']=a:query
+    return systemlist(s:geturl(a:query))
+endfunction
+
+" Print nice messages
 function! cheat#echo(msg,type)
   if a:type=='e'
     let group='ErrorMsg'
@@ -73,12 +84,46 @@ function! cheat#echo(msg,type)
   echohl None
 endfunction
 
-
-
 " Returns the list of available options
 function! cheat#completeargs(A, L, P)
     call cheat#echo('Retrieving list of available cheat sheets', 'S')
-    return system(cheat#geturl(':list'))
+    return system(s:geturl(":list"))
+endfunction
+
+" Lookup for next page
+function! cheat#next()
+    if(empty(s:prevrequest))
+        call cheat#echo('This command can only be called after :Cheat or :CheatReplace',
+                    \'e')
+        return
+    endif
+    let query=s:prevrequest["query"]
+    let num=matchstr(query, '\d*$')
+    if(num == "")
+        let query.='/1'
+    else
+        let query=substitute(query, '\d*$', num+1, '')
+    endif
+    let lines=s:getlines(query)
+    call s:OpenBuffer(s:prevrequest['ft'], lines)
+endfunction
+
+" Lookup for previous page
+function! cheat#prev()
+    if(empty(s:prevrequest))
+        call cheat#echo('There is no previous answer', 'e')
+        return
+    endif
+    let query=s:prevrequest["query"]
+    let num=matchstr(query, '\d*$')
+    if(num == "" || num == 0)
+        call cheat#echo('There is no previous answer', 'e')
+        return
+    else
+        let query=substitute(query, '\d*$', num-1, '')
+    endif
+    let lines=s:getlines(query)
+    call s:OpenBuffer(s:prevrequest['ft'], lines)
 endfunction
 
 " Handle a cheat query
@@ -94,9 +139,7 @@ function! cheat#cheat(query, froml, tol, range, replace)
         endif
 
         " Retrieve lines
-        call cheat#echo('Sending query : "'.query.'" to '.g:CheatSheetBaseUrl.
-                    \' this may take some time', 'S')
-        let lines=systemlist(cheat#geturl(query))
+        let lines=s:getlines(query)
 
         " Remove comments
         let new_lines=[]
@@ -120,15 +163,14 @@ function! cheat#cheat(query, froml, tol, range, replace)
     else
         " simple query
         let ft=g:CheatSheetFt
-        call cheat#echo('Sending query : "'.a:query.'" to '.
-                    \g:CheatSheetBaseUrl.' this may take some time', 'S')
-        let lines=systemlist(cheat#geturl(a:query))
+        let lines=s:getlines(a:query)
     endif
     call s:OpenBuffer(ft, lines)
 endfunction
 
 
 function! s:OpenBuffer(ft, lines)
+    let s:prevrequest['ft']=a:ft
     let bufname='_cheat.sh'
     let winnr = bufwinnr('^'.bufname.'$')
     " Retrieve buffer or create it
