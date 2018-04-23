@@ -56,7 +56,6 @@ endfunction
 function! s:getlines(query, commented)
     call cheat#echo('Sending query : "'.a:query.'" to '.g:CheatSheetBaseUrl.
                 \ ' this may take some time', 'S')
-    sleep 2
     let s:prevrequest['query']=a:query
     let lines= systemlist(s:geturl(a:query))
     let s:prevrequest['do_comment']=a:commented
@@ -97,7 +96,12 @@ function! cheat#completeargs(A, L, P)
 endfunction
 
 " Lookup for previous or next answer (+- a:delta)
-function! cheat#neighbour(delta)
+function! cheat#naviguate(delta)
+    if (! (a:delta =~# '^-\?\d\+$'))
+        call cheat#echo('Delta must be a number', 'e')
+        return
+    endif
+
     if(empty(s:prevrequest))
         call cheat#echo('You must first call :Cheat or :CheatReplace', 'e')
         return

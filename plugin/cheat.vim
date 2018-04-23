@@ -32,6 +32,8 @@ command! -nargs=? -range -complete=custom,cheat#completeargs Cheat
 command! -nargs=? -range -complete=custom,cheat#completeargs CheatReplace
     \ call cheat#cheat(<q-args>, <line1>, <line2>, <range>, 1)
 
+command! -nargs=1 CheatNaviguate call cheat#naviguate(<q-args>)
+
 if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
     " Cheat
     nnoremap <script> <silent> <localleader>CB
@@ -46,12 +48,12 @@ if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
                 \ :call cheat#cheat("", -1, -1, 2, 1)<CR>
 
     " Next
-    nnoremap <script> <silent> <localleader>CN :call cheat#neighbour(1)<CR>
-    vnoremap <script> <silent> <localleader>CN :call cheat#neighbour(1)<CR>
+    nnoremap <script> <silent> <localleader>CN :call cheat#naviguate(1)<CR>
+    vnoremap <script> <silent> <localleader>CN :call cheat#naviguate(1)<CR>
 
     " Prev
-    nnoremap <script> <silent> <localleader>CP :call cheat#neighbour(-1)<CR>
-    vnoremap <script> <silent> <localleader>CP :call cheat#neighbour(-1)<CR>
+    nnoremap <script> <silent> <localleader>CP :call cheat#naviguate(-1)<CR>
+    vnoremap <script> <silent> <localleader>CP :call cheat#naviguate(-1)<CR>
 endif
 
 let cpo=save_cpo
