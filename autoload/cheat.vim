@@ -46,6 +46,10 @@ endif
 
 let s:prevrequest={}
 
+let s:static_filetype = {
+            \'c++': 'cpp'
+            \}
+
 " Returns the url to query
 function! s:geturl(query)
     return g:CheatSheetUrlGetter.' "'.g:CheatSheetBaseUrl.'/'.a:query.'?'.
@@ -153,7 +157,11 @@ function! cheat#cheat(query, froml, tol, range, replace)
 
     else
         " simple query
-        let ft=g:CheatSheetFt
+        let ft=substitute(a:query, '^/\?\([^/]*\)/.*$', '\1', '')
+        call cheat#echo(ft,'e')
+        if(ft == a:query)
+            let ft=g:CheatSheetFt
+        endif
         let lines=s:getlines(a:query, 0)
     endif
     call s:PrintLines(ft, lines, a:replace)
@@ -177,7 +185,13 @@ function! s:PrintLines(ft, lines, replace)
                     \ ' +set\ bt=nofile\ bufhidden=wipe '.bufname
         endif
         " Update ft
-        execute ': set ft='.a:ft
+        " TODO convert ft
+        if(has_key(s:static_filetype,a:ft))
+            let ft=s:static_filetype[a:ft]
+        else
+            let ft=a:ft
+        endif
+        execute ': set ft='.ft
         " Add lines and go to beginning
         call append(0, a:lines)
         normal gg
