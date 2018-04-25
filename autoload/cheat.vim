@@ -209,8 +209,8 @@ function! s:add_comments(lines)
             let i=i+1
         endwhile
         " Comment everthing that is not code or blank line
-        if(i>2 || match(line, '^\s*$') !=-1)
-            call add(ret,strpart(line, i))
+        if(i>2 || match(line, '^    $') !=-1)
+            call add(ret,strpart(line, 3))
         else
             call add(ret,substitute(&cms, "%s", line, ''))
         endif
