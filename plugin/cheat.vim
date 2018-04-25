@@ -36,24 +36,24 @@ command! -nargs=1 CheatNaviguate call cheat#naviguate(<q-args>)
 
 if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
     " Cheat
-    nnoremap <script> <silent> <localleader>CQ
+    nnoremap <script> <silent> <leader>KB
                 \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 0)<CR>
-    vnoremap <script> <silent> <localleader>CQ
+    vnoremap <script> <silent> <leader>KB
                 \ :call cheat#cheat("", -1, -1, 2, 0)<CR>
 
     " Replace
-    nnoremap <script> <silent> <localleader>CR
+    nnoremap <script> <silent> <leader>KR
                 \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 1)<CR>
-    vnoremap <script> <silent> <localleader>CR
+    vnoremap <script> <silent> <leader>KR
                 \ :call cheat#cheat("", -1, -1, 2, 1)<CR>
 
     " Next
-    nnoremap <script> <silent> <localleader>CN :call cheat#naviguate(1)<CR>
-    vnoremap <script> <silent> <localleader>CN :call cheat#naviguate(1)<CR>
+    nnoremap <script> <silent> <leader>KN :call cheat#naviguate(1)<CR>
+    vnoremap <script> <silent> <leader>KN :call cheat#naviguate(1)<CR>
 
     " Prev
-    nnoremap <script> <silent> <localleader>CP :call cheat#naviguate(-1)<CR>
-    vnoremap <script> <silent> <localleader>CP :call cheat#naviguate(-1)<CR>
+    nnoremap <script> <silent> <leader>KP :call cheat#naviguate(-1)<CR>
+    vnoremap <script> <silent> <leader>KP :call cheat#naviguate(-1)<CR>
 endif
 
 let cpo=save_cpo

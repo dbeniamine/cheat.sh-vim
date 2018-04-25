@@ -28,13 +28,13 @@ cheat.sh and show the answer in a new buffer (`:Cheat`) or in place of your
 question (`:CheatReplace`).
 + If one argument is given, you can complete it from a list of available cheat
 sheets or write your own [query](https://github.com/chubin/cheat.sh#search).
-+ There are two mappings `<localeader>CQ` and `<localleader>CR` (Cheat Replace)
++ There are two mappings `<localeader>KB` and `<leader>KR` (Cheat Replace)
 to run these commands without any arguments.
 
 #### Navigate through answers
 
 Once you have called on of these commands, you can navigate through answers
-with `<localleader>CN` (Cheat Next)  `<localleader>CP` (Cheat Previous).
+with `<leader>KN` (Cheat Next)  `<leader>KP` (Cheat Previous).
 
 You can also directly use the command :
 
@@ -44,7 +44,7 @@ Where delta is a numeric value for moving (1, or -1 for next or previous)
 
 #### Notes
 
-+ `<localleader>` is usually '\'.
++ `<leader>` is usually '\'.
 + For more info on cheat sheet sources, see
 [cheat.sh](https://github.com/chubin/cheat.sh).
 
