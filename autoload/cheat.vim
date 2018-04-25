@@ -149,7 +149,11 @@ function! cheat#cheat(query, froml, tol, range, replace)
         endif
 
         if(a:replace && a:range ==0)
+           call cheat#echo('removing lines', 'e')
            normal dd
+           let s:appendpos=getcurpos()[1]-1
+        else
+           let s:appendpos=getcurpos()[1]
         endif
         " Retrieve lines commented
         let lines=s:getlines(query, 1)
@@ -172,7 +176,7 @@ function! s:PrintLines(ft, lines, replace)
     let s:prevrequest['ft']=a:ft
     if(a:replace)
         " Remove selection (currently only line if whole line selected)
-        call append(getcurpos()[1], a:lines)
+        call append(s:appendpos, a:lines)
     else
         let bufname='_cheat.sh'
         let winnr = bufwinnr('^'.bufname.'$')
