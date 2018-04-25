@@ -16,7 +16,7 @@ it then hitting `\CQ` (for Cheat Query).
 
 ### How to use it
 
-The plugins provides two commands :
+The plugins provides two main commands :
 
     :Cheat
     :CheatReplace
@@ -30,6 +30,10 @@ question (`:CheatReplace`).
 sheets or write your own [query](https://github.com/chubin/cheat.sh#search).
 + There are two mappings `<localeader>KB` and `<leader>KR` (Cheat Replace)
 to run these commands without any arguments.
+
+It also adds a `:CheatPager` command that is not designed to be directly used
+by the end user. This command is used to lookup cheat sheets instead of calling
+`man` when you hit `K` in normal and visual modes.
 
 #### Navigate through answers
 
@@ -98,6 +102,10 @@ You can also disable the mappings (see plugin/cheat.vim to redo the mappings
 manually)
 
     let g:CheatSheetDoNotMap=1
+
+To disable the replacement of man by cheat sheets :
+
+    Let g:CheatDoNotReplaceKeywordPrg=1
 
 ## License
 

@@ -44,6 +44,11 @@ if(!exists("g:CheatSheetUrlSettings"))
     let g:CheatSheetUrlSettings='Tq'
 endif
 
+" cheat sheet pager
+if(!exists("g:CheatPager"))
+    let g:CheatPager='less'
+endif
+
 let s:prevrequest={}
 
 let s:static_filetype = {
@@ -135,20 +140,30 @@ function! cheat#naviguate(delta)
     call s:PrintLines(s:prevrequest['ft'], lines, 0)
 endfunction
 
+function! s:PrepareFtQuery(query)
+    let query=&ft.'/'.substitute(a:query, ' ', '+', 'g')
+    " There must be a + in the query
+    if(match(query, '+') == -1)
+        let query=query.'+'
+    endif
+    return query
+endfunction
+
 " Handle a cheat query
-function! cheat#cheat(query, froml, tol, range, replace)
+" Args :
+"       query   : the text query
+"       froml   : the first line (if no queries)
+"       tol     : the last line (if no queries)
+"       range   : the number of selected words in visual mode
+"       mode    : the output mode : 0=> buffer, 1=> replace, 2=>pager
+function! cheat#cheat(query, froml, tol, range, mode)
     if(a:query == "")
         " No explicit query, prepare query from selection
-        let text=substitute(s:get_visual_selection(a:froml,a:tol, a:range),
-                    \'^\s*', '', '')
-        let query=&ft.'/'.substitute(text, ' ', '+', 'g')
+        let query=s:PrepareFtQuery(
+                    \substitute(s:get_visual_selection(a:froml,a:tol, a:range),
+                    \'^\s*', '', ''))
 
-        " There must be a + in the query
-        if(match(query, '+') == -1)
-            let query=query.'+'
-        endif
-
-        if(a:replace && a:range ==0)
+        if(a:mode == 1 && a:range ==0)
            call cheat#echo('removing lines', 'e')
            normal dd
            let s:appendpos=getcurpos()[1]-1
@@ -168,15 +183,31 @@ function! cheat#cheat(query, froml, tol, range, replace)
         endif
         let lines=s:getlines(a:query, 0)
     endif
-    call s:PrintLines(ft, lines, a:replace)
+    call s:PrintLines(ft, lines, a:mode)
 endfunction
 
+function! cheat#pager(query)
+    let query=s:PrepareFtQuery(a:query)
+    call s:PrintLines(&ft,s:getlines(query, 0),2)
+endfunction
 
-function! s:PrintLines(ft, lines, replace)
+" Args :
+"       fr      : the filetype to use
+"       lines   : the lines to print
+"       mode    : the output mode : 0=> buffer, 1=> replace, 2=>pager
+function! s:PrintLines(ft, lines, mode)
     let s:prevrequest['ft']=a:ft
-    if(a:replace)
+    if(a:mode == 1)
         " Remove selection (currently only line if whole line selected)
         call append(s:appendpos, a:lines)
+    elseif(a:mode ==2)
+        " TODO
+        let tmpfile = tempname()
+        execute 'redir > '.tmpfile
+        " Remove everything until first empty line and print the contents
+        silent echo join(a:lines[match(a:lines,'^$'):],"\n")
+        redir END
+        execute ':!'.g:CheatPager.' '.tmpfile
     else
         let bufname='_cheat.sh'
         let winnr = bufwinnr('^'.bufname.'$')

@@ -32,7 +32,14 @@ command! -nargs=? -range -complete=custom,cheat#completeargs Cheat
 command! -nargs=? -range -complete=custom,cheat#completeargs CheatReplace
     \ call cheat#cheat(<q-args>, <line1>, <line2>, <range>, 1)
 
+command! -nargs=? -range -complete=custom,cheat#completeargs CheatPager
+    \ call cheat#pager(<q-args>)
+
 command! -nargs=1 CheatNaviguate call cheat#naviguate(<q-args>)
+
+if(!exists("g:CheatDoNotReplaceKeywordPrg") || g:CheatDoNotReplaceKeywordPrg ==0)
+    set keywordprg=:CheatPager
+endif
 
 if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
     " Cheat
