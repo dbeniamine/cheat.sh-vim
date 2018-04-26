@@ -105,7 +105,7 @@ function! cheat#completeargs(A, L, P)
 endfunction
 
 " Lookup for previous or next answer (+- a:delta)
-function! cheat#naviguate(delta)
+function! cheat#naviguate(delta, type)
     if (! (a:delta =~# '^-\?\d\+$'))
         call cheat#echo('Delta must be a number', 'e')
         return
@@ -116,25 +116,27 @@ function! cheat#naviguate(delta)
         return
     endif
 
-    " Retrieve last query number
     let query=s:prevrequest["query"]
-    let num=matchstr(query, '\d*$')
 
-    " No number means answer 0
-    if(num == "")
-        let num=0
-        let query.='/'
-    endif
-    let num=num+a:delta
+    let [query,q,a,s] = split(substitute(query,
+                \'^\(.*\)/\(\d\+\)/\(\d\+\),\(\d\+\)$', '\1,\2,\3,\4', ''),',')
 
-    if(num <0)
-        call cheat#echo('There is no previous answer', 'e')
-        return
-    elseif(num==0)
-        let query=substitute(query, '/\d*$', '', '')
+    " query looks like query/0/0 maybe ,something
+    if(a:type == 'Q')
+        let q=max([0,q+a:delta])
+        let a=0
+        let s=0
+    elseif(a:type == 'A')
+        let a=max([0,a+a:delta])
+        let s=0
+    elseif(a:type == 'S')
+        let s=max([0,s+a:delta])
     else
-        let query=substitute(query, '\d*$', num, '')
+        call cheat#echo('Unknown naviguation type "'.a:type.'"', 'e')
+        return
     endif
+
+    let query.='/'.q.'/'.a.','.s
 
     let lines=s:getlines(query, s:prevrequest['do_comment'])
     call s:PrintLines(s:prevrequest['ft'], lines, 0)
@@ -146,7 +148,7 @@ function! s:PrepareFtQuery(query)
     if(match(query, '+') == -1)
         let query=query.'+'
     endif
-    return query
+    return query.'/0/0,0'
 endfunction
 
 " Handle a cheat query
@@ -181,7 +183,8 @@ function! cheat#cheat(query, froml, tol, range, mode)
         if(ft == a:query)
             let ft=g:CheatSheetFt
         endif
-        let lines=s:getlines(a:query, 0)
+        " TODO ugly, we should transform query
+        let lines=s:getlines(a:query.'/0/0,0', 0)
     endif
     call s:PrintLines(ft, lines, a:mode)
 endfunction
@@ -220,7 +223,6 @@ function! s:PrintLines(ft, lines, mode)
                     \ ' +set\ bt=nofile\ bufhidden=wipe '.bufname
         endif
         " Update ft
-        " TODO convert ft
         if(has_key(s:static_filetype,a:ft))
             let ft=s:static_filetype[a:ft]
         else
