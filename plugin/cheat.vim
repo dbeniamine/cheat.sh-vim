@@ -44,11 +44,18 @@ if(!exists("g:CheatDoNotReplaceKeywordPrg") || g:CheatDoNotReplaceKeywordPrg ==0
 endif
 
 if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
-    " Cheat
+    " Buffer
     nnoremap <script> <silent> <leader>KB
                 \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 0)<CR>
     vnoremap <script> <silent> <leader>KB
                 \ :call cheat#cheat("", -1, -1, 2, 0)<CR>
+ 
+    " Pager
+    nnoremap <script> <silent> <leader>KK
+                \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 2)<CR>
+    vnoremap <script> <silent> <leader>KK
+                \ :call cheat#cheat("", -1, -1, 2, 2)<CR>
+
 
     " Replace
     nnoremap <script> <silent> <leader>KR

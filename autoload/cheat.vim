@@ -41,12 +41,12 @@ endif
 
 " cheat sheet settings
 if(!exists("g:CheatSheetUrlSettings"))
-    let g:CheatSheetUrlSettings='Tq'
+    let g:CheatSheetUrlSettings='q'
 endif
 
 " cheat sheet pager
 if(!exists("g:CheatPager"))
-    let g:CheatPager='less'
+    let g:CheatPager='less -R'
 endif
 
 let s:prevrequest={}
@@ -56,17 +56,25 @@ let s:static_filetype = {
             \}
 
 " Returns the url to query
-function! s:geturl(query)
-    return g:CheatSheetUrlGetter.' "'.g:CheatSheetBaseUrl.'/'.a:query.'?'.
-                \g:CheatSheetUrlSettings.'"'
+function! s:geturl(query, colored)
+    let url=g:CheatSheetUrlGetter.' "'.g:CheatSheetBaseUrl.'/'.a:query.'?'.
+                \g:CheatSheetUrlSettings
+
+    if(a:colored==0)
+        let url.='T"'
+    else
+        let url.='"'
+    endif
+
+    return url
 endfunction
 
 " Returns the url to query
-function! s:getlines(query, commented)
+function! s:getlines(query, commented, colored)
     call cheat#echo('Sending query : "'.a:query.'" to '.g:CheatSheetBaseUrl.
                 \ ' this may take some time', 'S')
     let s:prevrequest['query']=a:query
-    let lines= systemlist(s:geturl(a:query))
+    let lines= systemlist(s:geturl(a:query, a:colored))
     let s:prevrequest['do_comment']=a:commented
     if(a:commented)
         return s:add_comments(lines)
@@ -101,7 +109,7 @@ endfunction
 " Returns the list of available options
 function! cheat#completeargs(A, L, P)
     call cheat#echo('Retrieving list of available cheat sheets', 'S')
-    return system(s:geturl(":list"))
+    return system(s:geturl(":list", 0))
 endfunction
 
 " Lookup for previous or next answer (+- a:delta)
@@ -138,7 +146,7 @@ function! cheat#naviguate(delta, type)
 
     let query.='/'.q.'/'.a.','.s
 
-    let lines=s:getlines(query, s:prevrequest['do_comment'])
+    let lines=s:getlines(query, s:prevrequest['do_comment'], 0)
     call s:PrintLines(s:prevrequest['ft'], lines, 0)
 endfunction
 
@@ -173,8 +181,8 @@ function! cheat#cheat(query, froml, tol, range, mode)
            let s:appendpos=getcurpos()[1]
         endif
         " Retrieve lines commented
-        let lines=s:getlines(query, 1)
         let ft=&ft
+        let commented=1
 
     else
         " simple query
@@ -184,14 +192,23 @@ function! cheat#cheat(query, froml, tol, range, mode)
             let ft=g:CheatSheetFt
         endif
         " TODO ugly, we should transform query
-        let lines=s:getlines(a:query.'/0/0,0', 0)
+        let query=a:query.'/0/0,0'
+        let commented=0
     endif
-    call s:PrintLines(ft, lines, a:mode)
+    if(a:mode==2)
+        call cheat#pager(query)
+    else
+        let lines=s:getlines(query, commented, 0)
+        call s:PrintLines(ft, lines, a:mode)
+    endif
 endfunction
 
 function! cheat#pager(query)
     let query=s:PrepareFtQuery(a:query)
-    call s:PrintLines(&ft,s:getlines(query, 0),2)
+    let s:prevrequest['ft']=&ft
+    let s:prevrequest['query']=a:query
+    let s:prevrequest['do_comment']=1
+    execute ":!".s:geturl(query,1).' | '.g:CheatPager
 endfunction
 
 " Args :
@@ -203,14 +220,6 @@ function! s:PrintLines(ft, lines, mode)
     if(a:mode == 1)
         " Remove selection (currently only line if whole line selected)
         call append(s:appendpos, a:lines)
-    elseif(a:mode ==2)
-        " TODO
-        let tmpfile = tempname()
-        execute 'redir > '.tmpfile
-        " Remove everything until first empty line and print the contents
-        silent echo join(a:lines[match(a:lines,'^$'):],"\n")
-        redir END
-        execute ':!'.g:CheatPager.' '.tmpfile
     else
         let bufname='_cheat.sh'
         let winnr = bufwinnr('^'.bufname.'$')
