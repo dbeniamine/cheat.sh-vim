@@ -124,6 +124,11 @@ function! cheat#naviguate(delta, type)
         return
     endif
 
+    if(s:prevrequest["NoNaviguate"] == 1)
+        call cheat#echo('Naviguation is not implemented for cheat sheets', 'e')
+        return
+    endif
+
     let query=s:prevrequest["query"]
 
     let [query,q,a,s] = split(substitute(query,
@@ -151,12 +156,37 @@ function! cheat#naviguate(delta, type)
 endfunction
 
 function! s:PrepareFtQuery(query)
+    let s:prevrequest["NoNaviguate"]=0
     let query=&ft.'/'.substitute(a:query, ' ', '+', 'g')
     " There must be a + in the query
     if(match(query, '+') == -1)
         let query=query.'+'
     endif
     return query.'/0/0,0'
+endfunction
+
+" We know only that query looks like ft/query
+function! s:add_optionals(query)
+    let s:prevrequest["NoNaviguate"]=0
+    let opts=split(a:query, '/')
+    if(len(opts) >=3)
+        let q=opts[2]
+    else
+        let q=0
+    endif
+    if(len(opts) >=4)
+        " Remove see related if present
+        let a=substitute(opts[3], '\(.*\),\+.*$', '\1', '')
+    else
+        let a=0
+    endif
+    " Remove see related uses , not /
+    if(match(a:query, ',\d\+$')!=-1)
+        let s=substitute(a:query, '^.*,\(\d\+\)$', '\1', '')
+    else
+        let s=0
+    endif
+    return opts[0]."/".opts[1]."/".a."/".q.','.s
 endfunction
 
 " Handle a cheat query
@@ -190,9 +220,12 @@ function! cheat#cheat(query, froml, tol, range, mode)
         call cheat#echo(ft,'e')
         if(ft == a:query)
             let ft=g:CheatSheetFt
+            " simple query
+            let s:prevrequest["NoNaviguate"]=1
+            let query=a:query
+        else
+            let query=s:add_optionals(a:query)
         endif
-        " TODO ugly, we should transform query
-        let query=a:query.'/0/0,0'
         let commented=0
     endif
     if(a:mode==2)
