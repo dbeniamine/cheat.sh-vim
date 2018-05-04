@@ -56,15 +56,17 @@ let s:static_filetype = {
             \}
 
 " Returns the url to query
-function! s:geturl(query, colored)
+function! s:geturl(query, colored, commented)
     let url=g:CheatSheetUrlGetter.' "'.g:CheatSheetBaseUrl.'/'.a:query.'?'.
                 \g:CheatSheetUrlSettings
 
     if(a:colored==0)
-        let url.='T"'
-    else
-        let url.='"'
+        let url.='T'
     endif
+    if(a:commented)
+        let url.='c'
+    endif
+    let url.='"'
 
     return url
 endfunction
@@ -74,11 +76,8 @@ function! s:getlines(query, commented, colored)
     call cheat#echo('Sending query : "'.a:query.'" to '.g:CheatSheetBaseUrl.
                 \ ' this may take some time', 'S')
     let s:prevrequest['query']=a:query
-    let lines= systemlist(s:geturl(a:query, a:colored))
+    let lines= systemlist(s:geturl(a:query, a:colored, a:commented))
     let s:prevrequest['do_comment']=a:commented
-    if(a:commented)
-        return s:add_comments(lines)
-    endif
     return lines
 endfunction
 
@@ -109,7 +108,7 @@ endfunction
 " Returns the list of available options
 function! cheat#completeargs(A, L, P)
     call cheat#echo('Retrieving list of available cheat sheets', 'S')
-    return system(s:geturl(":list", 0))
+    return system(s:geturl(":list", 0, 0))
 endfunction
 
 " Lookup for previous or next answer (+- a:delta)
@@ -241,7 +240,7 @@ function! cheat#pager(query)
     let s:prevrequest['ft']=&ft
     let s:prevrequest['query']=a:query
     let s:prevrequest['do_comment']=1
-    execute ":!".s:geturl(query,1).' | '.g:CheatPager
+    execute ":!".s:geturl(query,1, 1).' | '.g:CheatPager
 endfunction
 
 " Args :
@@ -275,26 +274,6 @@ function! s:PrintLines(ft, lines, mode)
         call append(0, a:lines)
         normal gg
     endif
-endfunction
-
-" Returns the line, commented if it is not code
-function! s:add_comments(lines)
-    let ret=[]
-    for line in a:lines
-        " Count number of spaces at beginning of line (probably a better way
-        " to do it
-        let i=0
-        while (line[i] == ' ')
-            let i=i+1
-        endwhile
-        " Comment everthing that is not code or blank line
-        if(i>2 || match(line, '^    $') !=-1)
-            call add(ret,strpart(line, 3))
-        else
-            call add(ret,substitute(&cms, "%s", line, ''))
-        endif
-    endfor
-    return ret
 endfunction
 
 " Returns the text that is currently selected
