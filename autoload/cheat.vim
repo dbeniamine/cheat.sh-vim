@@ -56,19 +56,8 @@ let s:static_filetype = {
             \}
 
 " Returns the url to query
-function! s:geturl(query, colored, commented)
-    let url=g:CheatSheetUrlGetter.' "'.g:CheatSheetBaseUrl.'/'.a:query.'?'.
-                \g:CheatSheetUrlSettings
-
-    if(a:colored==0)
-        let url.='T'
-    endif
-    if(a:commented)
-        let url.='c'
-    endif
-    let url.='"'
-
-    return url
+function! s:getUrl(query)
+    return g:CheatSheetUrlGetter.' "'.g:CheatSheetBaseUrl.'/'.a:query.'"'
 endfunction
 
 " Print nice messages
@@ -105,7 +94,7 @@ function! cheat#completeargs(A, L, P)
         let url=':list'
         let cat=''
     endif
-    return substitute(system(s:geturl(url, 0, 0)),
+    return substitute(system(s:getUrl(url)),
                 \'\(\n\|^\)\(\S\)', '\1'.cat.'\2', 'g')
 endfunction
 
@@ -115,75 +104,101 @@ function! cheat#naviguate(delta, type)
         call cheat#echo('Delta must be a number', 'e')
         return
     endif
+    let request = s:prevrequest
 
-    if(empty(s:prevrequest))
+    if(empty(request))
         call cheat#echo('You must first call :Cheat or :CheatReplace', 'e')
         return
     endif
 
-    if(s:prevrequest["NoNaviguate"] == 1)
+    if(request["isCheatSheet"] == 1)
         call cheat#echo('Naviguation is not implemented for cheat sheets', 'e')
         return
     endif
 
-    let query=s:prevrequest["query"]
-
-    let [query,q,a,s] = split(substitute(query,
-                \'^\(.*\)/\(\d\+\)/\(\d\+\),\(\d\+\)$', '\1,\2,\3,\4', ''),',')
+    " TODO if mode ==1 remove lines from prev request
 
     " query looks like query/0/0 maybe ,something
     if(a:type == 'Q')
-        let q=max([0,q+a:delta])
-        let a=0
-        let s=0
+        let request.q=max([0,request.q+a:delta])
+        let request.a=0
+        let request.s=0
     elseif(a:type == 'A')
-        let a=max([0,a+a:delta])
-        let s=0
+        let request.a=max([0,request.a+a:delta])
+        let request.s=0
     elseif(a:type == 'S')
-        let s=max([0,s+a:delta])
+        let request.s=max([0,request.s+a:delta])
     else
         call cheat#echo('Unknown naviguation type "'.a:type.'"', 'e')
         return
     endif
 
-    let query.='/'.q.'/'.a.','.s
-
-    call s:handleQuery(query, s:prevrequest['ft'],
-                \s:prevrequest['do_comment'], 0)
+    call s:handleRequest(request)
 endfunction
 
+" Preprends ft and make sure that the query has a '+'
 function! s:PrepareFtQuery(query)
-    let s:prevrequest["NoNaviguate"]=0
     let query=&ft.'/'.substitute(a:query, ' ', '+', 'g')
     " There must be a + in the query
     if(match(query, '+') == -1)
         let query=query.'+'
     endif
-    return query.'/0/0,0'
+    return query
 endfunction
 
-" We know only that query looks like ft/query
-function! s:add_optionals(query)
-    let s:prevrequest["NoNaviguate"]=0
+" Completes request to be a high level request corresponding to the given
+" query
+function! s:requestFromQuery(query, request)
     let opts=split(a:query, '/')
     if(len(opts) >=3)
-        let q=opts[2]
+        let a:request.q=opts[2]
     else
-        let q=0
+        let a:request.q=0
     endif
     if(len(opts) >=4)
         " Remove see related if present
-        let a=substitute(opts[3], '\(.*\),\+.*$', '\1', '')
+        let a:request.a=substitute(opts[3], '\(.*\),\+.*$', '\1', '')
     else
-        let a=0
+        let a:request.a=0
     endif
     " Remove see related uses , not /
     if(match(a:query, ',\d\+$')!=-1)
-        let s=substitute(a:query, '^.*,\(\d\+\)$', '\1', '')
+        let a:request.s=substitute(a:query, '^.*,\(\d\+\)$', '\1', '')
     else
-        let s=0
+        let a:request.s=0
     endif
-    return opts[0]."/".opts[1]."/".a."/".q.','.s
+    let a:request.ft=opts[0]
+    let a:request.query=opts[0]."/".opts[1]
+    if(match(a:query,'+')==-1)
+        let a:request.isCheatSheet=1
+    endif
+    return a:request
+endfunction
+
+" Transforms a high level request into a query ready to be processed by cht.sh
+function! s:queryFromRequest(request)
+    let query=a:request.query
+    if(a:request.isCheatSheet ==0)
+        let query.='/'.a:request.q.'/'.a:request.a.','.a:request.s
+    endif
+    let query.='?'
+    " Color pager requests
+    if(a:request.mode!=2)
+        let query.='T'
+    endif
+    let query.=g:CheatSheetUrlSettings
+    return query
+endfunction
+
+" Prepare an empty request
+function! s:initRequest()
+    let request={}
+    let request.a=0
+    let request.q=0
+    let request.s=0
+    let request.ft=&ft
+    let request["isCheatSheet"]=0
+    return request
 endfunction
 
 " Handle a cheat query
@@ -194,9 +209,10 @@ endfunction
 "       range   : the number of selected words in visual mode
 "       mode    : the output mode : 0=> buffer, 1=> replace, 2=>pager
 function! cheat#cheat(query, froml, tol, range, mode)
+    let request=s:initRequest()
     if(a:query == "")
         " No explicit query, prepare query from selection
-        let query=s:PrepareFtQuery(
+        let request.query=s:PrepareFtQuery(
                     \substitute(s:get_visual_selection(a:froml,a:tol, a:range),
                     \'^\s*', '', ''))
 
@@ -207,56 +223,67 @@ function! cheat#cheat(query, froml, tol, range, mode)
         else
            let s:appendpos=getcurpos()[1]
         endif
-        " Retrieve lines commented
-        let ft=&ft
-        let commented=1
-
     else
         " simple query
         let ft=substitute(a:query, '^/\?\([^/]*\)/.*$', '\1', '')
         call cheat#echo(ft,'e')
         if(ft == a:query)
-            let ft=g:CheatSheetFt
+            let request.ft=g:CheatSheetFt
             " simple query
-            let s:prevrequest["NoNaviguate"]=1
-            let query=a:query
+            let request["isCheatSheet"]=1
+            let request.query=a:query
         else
-            let query=s:add_optionals(a:query)
+            let request=s:requestFromQuery(a:query, request)
         endif
-        let commented=0
     endif
-    if(a:mode==2)
-        call cheat#pager(query)
-    else
-        call s:handleQuery(query, ft, commented, a:mode)
-    endif
+    let request.mode=a:mode
+    call s:handleRequest(request)
 endfunction
 
+" Use for keywordprg, no selection here directly the query
 function! cheat#pager(query)
-    let query=s:PrepareFtQuery(a:query)
-    let s:prevrequest['ft']=&ft
-    let s:prevrequest['query']=a:query
-    let s:prevrequest['do_comment']=1
-    execute ":!".s:geturl(query,1, 1).' | '.g:CheatPager
+    let request=s:initRequest()
+    let request.query=s:PrepareFtQuery(a:query)
+    call s:handleRequest(request)
 endfunction
 
-" args :
-"       query       : a cheat.sh query
-"       ft          : the filetype to use
-"       commented   : should the lines be commented
-"       mode        : the output mode : 0=> buffer, 1=> replace, 2=>pager
-function! s:handleQuery(query, ft, commented, mode)
-    let s:prevrequest['ft']=a:ft
-    let s:prevrequest['query']=a:query
-    let s:prevrequest['do_comment']=a:commented
-    if(a:mode ==2)
-        execute ":!".s:geturl(query,1, 1).' | '.g:CheatPager
+" Prints a message about the query to be prossessed
+function! s:displayRequestMessage(request)
+    if(a:request.isCheatSheet == 1)
+        let message='Looking for cheat sheet: "'.a:request.query.'" from '.
+                    \g:CheatSheetBaseUrl
+    else
+        let message='Sending query : "'.a:request.query.'" to '.
+                    \g:CheatSheetBaseUrl
+        let more=''
+        if(a:request.s!=0)
+            let more.="\n\trelated number: ".a:request.s
+        endif
+        if(a:request.a!=0)
+            let more.="\n\tanswer number: ".a:request.a
+        endif
+        if(a:request.q!=0)
+            let more.="\n\tquestion number: ".a:request.q
+        endif
+        if(more != '')
+            let message.="\nRequesting".more
+        endif
+    endif
+    call cheat#echo(message. "\nthis may take some time", 'S')
+endfunction
+
+" Output the result of the given request
+function! s:handleRequest(request)
+    let s:prevrequest=a:request
+    let url=s:getUrl(s:queryFromRequest(a:request))
+    call s:displayRequestMessage(a:request)
+    if(a:request.mode ==2)
+        execute ":!".url.' | '.g:CheatPager
     else
         " Retrieve lines
-        call cheat#echo('Sending query : "'.a:query.'" to '.g:CheatSheetBaseUrl.
-                \ ' this may take some time', 'S')
-        let lines= systemlist(s:geturl(a:query, 0, a:commented))
-        if(a:mode == 1)
+        let lines= systemlist(url)
+        let s:prevrequest.lines=len(lines)
+        if(a:request.mode == 1)
             " Remove selection (currently only line if whole line selected)
             call append(s:appendpos, lines)
         else
@@ -271,10 +298,10 @@ function! s:handleQuery(query, ft, commented, mode)
                         \ ' +set\ bt=nofile\ bufhidden=wipe '.bufname
             endif
             " Update ft
-            if(has_key(s:static_filetype,a:ft))
-                let ft=s:static_filetype[a:ft]
+            if(has_key(s:static_filetype,a:request.ft))
+                let ft=s:static_filetype[a:request.ft]
             else
-                let ft=a:ft
+                let ft=a:request.ft
             endif
             execute ': set ft='.ft
             " Add lines and go to beginning
