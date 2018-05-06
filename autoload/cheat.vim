@@ -99,7 +99,7 @@ function! cheat#completeargs(A, L, P)
 endfunction
 
 " Lookup for previous or next answer (+- a:delta)
-function! cheat#naviguate(delta, type)
+function! cheat#navigate(delta, type)
     if (! (a:delta =~# '^-\?\d\+$'))
         call cheat#echo('Delta must be a number', 'e')
         return
@@ -112,7 +112,7 @@ function! cheat#naviguate(delta, type)
     endif
 
     if(request["isCheatSheet"] == 1)
-        call cheat#echo('Naviguation is not implemented for cheat sheets', 'e')
+        call cheat#echo('Navigation is not implemented for cheat sheets', 'e')
         return
     endif
 
@@ -134,7 +134,7 @@ function! cheat#naviguate(delta, type)
     elseif(a:type == 'S')
         let request.s=max([0,request.s+a:delta])
     else
-        call cheat#echo('Unknown naviguation type "'.a:type.'"', 'e')
+        call cheat#echo('Unknown navigation type "'.a:type.'"', 'e')
         return
     endif
 

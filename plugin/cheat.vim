@@ -35,9 +35,9 @@ command! -nargs=? -range -complete=custom,cheat#completeargs CheatReplace
 command! -nargs=? -range -complete=custom,cheat#completeargs CheatPager
     \ call cheat#pager(<q-args>)
 
-command! -nargs=1 CheatNaviguateQuestions call cheat#naviguate(<q-args>, 'Q')
-command! -nargs=1 CheatNaviguateAnswers call cheat#naviguate(<q-args>, 'A')
-command! -nargs=1 CheatSeeAlso call cheat#naviguate(<q-args>, 'S')
+command! -nargs=1 CheatNavigateQuestions call cheat#navigate(<q-args>, 'Q')
+command! -nargs=1 CheatNavigateAnswers call cheat#navigate(<q-args>, 'A')
+command! -nargs=1 CheatSeeAlso call cheat#navigate(<q-args>, 'S')
 
 if(!exists("g:CheatDoNotReplaceKeywordPrg") || g:CheatDoNotReplaceKeywordPrg ==0)
     set keywordprg=:CheatPager
@@ -64,22 +64,22 @@ if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
                 \ :call cheat#cheat("", -1, -1, 2, 1)<CR>
 
     " Next
-    nnoremap <script> <silent> <leader>KQN :call cheat#naviguate(1,'Q')<CR>
-    vnoremap <script> <silent> <leader>KQN :call cheat#naviguate(1,'Q')<CR>
-    nnoremap <script> <silent> <leader>KAN :call cheat#naviguate(1, 'A')<CR>
-    vnoremap <script> <silent> <leader>KAN :call cheat#naviguate(1, 'A')<CR>
+    nnoremap <script> <silent> <leader>KQN :call cheat#navigate(1,'Q')<CR>
+    vnoremap <script> <silent> <leader>KQN :call cheat#navigate(1,'Q')<CR>
+    nnoremap <script> <silent> <leader>KAN :call cheat#navigate(1, 'A')<CR>
+    vnoremap <script> <silent> <leader>KAN :call cheat#navigate(1, 'A')<CR>
 
     " Prev
-    nnoremap <script> <silent> <leader>KQP :call cheat#naviguate(-1,'Q')<CR>
-    vnoremap <script> <silent> <leader>KQP :call cheat#naviguate(-1,'Q')<CR>
-    nnoremap <script> <silent> <leader>KAP :call cheat#naviguate(-1,'A')<CR>
-    vnoremap <script> <silent> <leader>KAP :call cheat#naviguate(-1,'A')<CR>
+    nnoremap <script> <silent> <leader>KQP :call cheat#navigate(-1,'Q')<CR>
+    vnoremap <script> <silent> <leader>KQP :call cheat#navigate(-1,'Q')<CR>
+    nnoremap <script> <silent> <leader>KAP :call cheat#navigate(-1,'A')<CR>
+    vnoremap <script> <silent> <leader>KAP :call cheat#navigate(-1,'A')<CR>
 
     " See Also
-    nnoremap <script> <silent> <leader>KSN :call cheat#naviguate(1,'S')<CR>
-    vnoremap <script> <silent> <leader>KSN :call cheat#naviguate(1,'S')<CR>
-    nnoremap <script> <silent> <leader>KSP :call cheat#naviguate(-1,'S')<CR>
-    vnoremap <script> <silent> <leader>KSP :call cheat#naviguate(-1,'S')<CR>
+    nnoremap <script> <silent> <leader>KSN :call cheat#navigate(1,'S')<CR>
+    vnoremap <script> <silent> <leader>KSN :call cheat#navigate(1,'S')<CR>
+    nnoremap <script> <silent> <leader>KSP :call cheat#navigate(-1,'S')<CR>
+    vnoremap <script> <silent> <leader>KSP :call cheat#navigate(-1,'S')<CR>
 endif
 
 let cpo=save_cpo

@@ -10,13 +10,20 @@ There is an asciinema showing how it works :
 ## Features
 
 + Browse existing cheat sheets from cheat.sh directly from vim
-+ Get answers on any programming question directly on your vim, just by typing
-it then hitting `\CQ` (for Cheat Query).
-+ Configure anything
++ Get answers on any programming question directly on your vim with simple mappings
++ Quick navigation through answers
++ Everything is configurable
 
 ### How to use it
 
-The plugins provides two main commands :
+The easiest way to use this plugin is to use one of the following mappings :
+
++ `K` get answer on the word under the cursor or the selection on a pager
++ `<leader>kK` same as `K`
++ `<leader>KB` get the answer on a special buffer
++ `<leader>KR` Replace your question by the answer
+
+The plugins also provides two commands :
 
     :Cheat
     :CheatReplace
@@ -37,14 +44,31 @@ by the end user. This command is used to lookup cheat sheets instead of calling
 
 #### Navigate through answers
 
-Once you have called on of these commands, you can navigate through answers
-with `<leader>KN` (Cheat Next)  `<leader>KP` (Cheat Previous).
+Once you have called on of these commands, you can navigate through questions,
+answers and related with the following mappings :
 
-You can also directly use the command :
++ `<leader>KQN` Next Question
++ `<leader>KAN` Next Answer
++ `<leader>KSN` Next "See also"
++ `<leader>KQP` Previous Question
++ `<leader>KAP` Previous Answer
++ `<leader>KSP` Previous "See also"
 
-    :CheatNaviguate delta
+You can also directly use the function :
+
+    :call cheat#navigate(delta, type)
 
 Where delta is a numeric value for moving (1, or -1 for next or previous)
+And type is one of : `'Q'`, `'A'` and `'S'`
+
+For instance :
+
+    :call cheat#navigate(-3, 'A')
+
+goes back three answers before the current
+
+When navigating, the same mode (pager, buffer, replace) is used as for the last
+request.
 
 #### Notes
 
@@ -96,7 +120,10 @@ the default values that will be used if you do not change them) :
     let g:CheatSheetBaseUrl='cheat.sh'
 
     " cheat sheet settings
-    let g:CheatSheetUrlSettings='Tq'
+    let g:CheatSheetUrlSettings='q'
+
+    " cheat sheet pager command
+    let g:CheatPager='less -R'
 
 You can also disable the mappings (see plugin/cheat.vim to redo the mappings
 manually)
