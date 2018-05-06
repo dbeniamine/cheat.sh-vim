@@ -108,7 +108,15 @@ endfunction
 " Returns the list of available options
 function! cheat#completeargs(A, L, P)
     call cheat#echo('Retrieving list of available cheat sheets', 'S')
-    return system(s:geturl(":list", 0, 0))
+    if(match(a:A, '.*/.*$')!=-1)
+        let cat=substitute(a:A, '\(.*/\).*', '\1', '')
+        let url=cat.':list'
+    else
+        let url=':list'
+        let cat=''
+    endif
+    return substitute(system(s:geturl(url, 0, 0)),
+                \'\(\n\|^\)\(\S\)', '\1'.cat.'\2', 'g')
 endfunction
 
 " Lookup for previous or next answer (+- a:delta)
