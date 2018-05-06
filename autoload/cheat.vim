@@ -71,16 +71,6 @@ function! s:geturl(query, colored, commented)
     return url
 endfunction
 
-" Returns the url to query
-function! s:getlines(query, commented, colored)
-    call cheat#echo('Sending query : "'.a:query.'" to '.g:CheatSheetBaseUrl.
-                \ ' this may take some time', 'S')
-    let s:prevrequest['query']=a:query
-    let lines= systemlist(s:geturl(a:query, a:colored, a:commented))
-    let s:prevrequest['do_comment']=a:commented
-    return lines
-endfunction
-
 " Print nice messages
 function! cheat#echo(msg,type)
   if a:type=='e'
@@ -158,8 +148,8 @@ function! cheat#naviguate(delta, type)
 
     let query.='/'.q.'/'.a.','.s
 
-    let lines=s:getlines(query, s:prevrequest['do_comment'], 0)
-    call s:PrintLines(s:prevrequest['ft'], lines, 0)
+    call s:handleQuery(query, s:prevrequest['ft'],
+                \s:prevrequest['do_comment'], 0)
 endfunction
 
 function! s:PrepareFtQuery(query)
@@ -238,8 +228,7 @@ function! cheat#cheat(query, froml, tol, range, mode)
     if(a:mode==2)
         call cheat#pager(query)
     else
-        let lines=s:getlines(query, commented, 0)
-        call s:PrintLines(ft, lines, a:mode)
+        call s:handleQuery(query, ft, commented, a:mode)
     endif
 endfunction
 
@@ -251,36 +240,47 @@ function! cheat#pager(query)
     execute ":!".s:geturl(query,1, 1).' | '.g:CheatPager
 endfunction
 
-" Args :
-"       fr      : the filetype to use
-"       lines   : the lines to print
-"       mode    : the output mode : 0=> buffer, 1=> replace, 2=>pager
-function! s:PrintLines(ft, lines, mode)
+" args :
+"       query       : a cheat.sh query
+"       ft          : the filetype to use
+"       commented   : should the lines be commented
+"       mode        : the output mode : 0=> buffer, 1=> replace, 2=>pager
+function! s:handleQuery(query, ft, commented, mode)
     let s:prevrequest['ft']=a:ft
-    if(a:mode == 1)
-        " Remove selection (currently only line if whole line selected)
-        call append(s:appendpos, a:lines)
+    let s:prevrequest['query']=a:query
+    let s:prevrequest['do_comment']=a:commented
+    if(a:mode ==2)
+        execute ":!".s:geturl(query,1, 1).' | '.g:CheatPager
     else
-        let bufname='_cheat.sh'
-        let winnr = bufwinnr('^'.bufname.'$')
-        " Retrieve buffer or create it
-        if ( winnr >= 0 )
-            execute winnr . 'wincmd w'
-            execute 'normal ggdG'
+        " Retrieve lines
+        call cheat#echo('Sending query : "'.a:query.'" to '.g:CheatSheetBaseUrl.
+                \ ' this may take some time', 'S')
+        let lines= systemlist(s:geturl(a:query, 0, a:commented))
+        if(a:mode == 1)
+            " Remove selection (currently only line if whole line selected)
+            call append(s:appendpos, lines)
         else
-            execute ':'.g:CheatSheetReaderCmd.
-                    \ ' +set\ bt=nofile\ bufhidden=wipe '.bufname
+            let bufname='_cheat.sh'
+            let winnr = bufwinnr('^'.bufname.'$')
+            " Retrieve buffer or create it
+            if ( winnr >= 0 )
+                execute winnr . 'wincmd w'
+                execute 'normal ggdG'
+            else
+                execute ':'.g:CheatSheetReaderCmd.
+                        \ ' +set\ bt=nofile\ bufhidden=wipe '.bufname
+            endif
+            " Update ft
+            if(has_key(s:static_filetype,a:ft))
+                let ft=s:static_filetype[a:ft]
+            else
+                let ft=a:ft
+            endif
+            execute ': set ft='.ft
+            " Add lines and go to beginning
+            call append(0, lines)
+            normal gg
         endif
-        " Update ft
-        if(has_key(s:static_filetype,a:ft))
-            let ft=s:static_filetype[a:ft]
-        else
-            let ft=a:ft
-        endif
-        execute ': set ft='.ft
-        " Add lines and go to beginning
-        call append(0, a:lines)
-        normal gg
     endif
 endfunction
 
