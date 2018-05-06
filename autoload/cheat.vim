@@ -107,38 +107,41 @@ function! cheat#navigate(delta, type)
     let request = s:prevrequest
 
     if(empty(request))
+        return
+    endif
+
+    try
+        if(request["isCheatSheet"] == 1)
+            call cheat#echo('Navigation is not implemented for cheat sheets', 'e')
+            return
+        endif
+
+        " Remove previously replaced lines
+        if(request.mode == 1)
+            let pos=request.appendpos+1
+            execute ':'.pos
+            execute 'd'.request.numLines
+        endif
+
+        " query looks like query/0/0 maybe ,something
+        if(a:type == 'Q')
+            let request.q=max([0,request.q+a:delta])
+            let request.a=0
+            let request.s=0
+        elseif(a:type == 'A')
+            let request.a=max([0,request.a+a:delta])
+            let request.s=0
+        elseif(a:type == 'S')
+            let request.s=max([0,request.s+a:delta])
+        else
+            call cheat#echo('Unknown navigation type "'.a:type.'"', 'e')
+            return
+        endif
+
+        call s:handleRequest(request)
+    catch
         call cheat#echo('You must first call :Cheat or :CheatReplace', 'e')
-        return
-    endif
-
-    if(request["isCheatSheet"] == 1)
-        call cheat#echo('Navigation is not implemented for cheat sheets', 'e')
-        return
-    endif
-
-    " Remove previously replaced lines
-    if(request.mode==1)
-        let pos=request.appendpos+1
-        execute ':'.pos
-        execute 'd'.request.numLines
-    endif
-
-    " query looks like query/0/0 maybe ,something
-    if(a:type == 'Q')
-        let request.q=max([0,request.q+a:delta])
-        let request.a=0
-        let request.s=0
-    elseif(a:type == 'A')
-        let request.a=max([0,request.a+a:delta])
-        let request.s=0
-    elseif(a:type == 'S')
-        let request.s=max([0,request.s+a:delta])
-    else
-        call cheat#echo('Unknown navigation type "'.a:type.'"', 'e')
-        return
-    endif
-
-    call s:handleRequest(request)
+    endtry
 endfunction
 
 " Preprends ft and make sure that the query has a '+'
