@@ -49,6 +49,10 @@ if(!exists("g:CheatPager"))
     let g:CheatPager='less -R'
 endif
 
+if(!exists("g:CheatSheetBufferName"))
+    let g:CheatSheetBufferName="_cheat"
+endif
+
 let s:prevrequest={}
 
 let s:static_filetype = {
@@ -206,6 +210,8 @@ function! s:initRequest()
     let request.s=0
     let request.ft=&ft
     let request["isCheatSheet"]=0
+    let request.appendpos=0
+    let request.numLines=0
     return request
 endfunction
 
@@ -224,12 +230,10 @@ function! cheat#cheat(query, froml, tol, range, mode)
                     \substitute(s:get_visual_selection(a:froml,a:tol, a:range),
                     \'^\s*', '', ''))
 
-        if(a:mode == 1 && a:range ==0)
-           call cheat#echo('removing lines', 'e')
-           normal dd
-           let request.appendpos=getcurpos()[1]-1
-        else
-           let request.appendpos=getcurpos()[1]
+        if(a:mode == 1)
+            call cheat#echo('removing lines', 'e')
+            normal dd
+            let request.appendpos=getcurpos()[1]-1
         endif
     else
         " simple query
@@ -279,43 +283,66 @@ function! s:displayRequestMessage(request)
     call cheat#echo(message. "\nthis may take some time", 'S')
 endfunction
 
-" Output the result of the given request
+function! cheat#createOrSwitchToBuffer()
+    let winnr = bufwinnr('^'.g:CheatSheetBufferName.'$')
+    " Retrieve buffer or create it
+    if ( winnr >= 0 )
+        execute winnr . 'wincmd w'
+    else
+        execute ':'.g:CheatSheetReaderCmd.
+                \ ' +set\ bt=nofile\ bufhidden=wipe '.
+                \g:CheatSheetBufferName
+    endif
+endfunction
+
+" Launch the request with jobs if available
 function! s:handleRequest(request)
     let s:prevrequest=a:request
-    let url=s:getUrl(s:queryFromRequest(a:request))
-    call s:displayRequestMessage(a:request)
-    if(a:request.mode ==2)
-        execute ":!".url.' | '.g:CheatPager
-    else
-        " Retrieve lines
-        let lines= systemlist(url)
-        let s:prevrequest.numLines=len(lines)
-        if(a:request.mode == 1)
-            " Remove selection (currently only line if whole line selected)
-            call append(a:request.appendpos, lines)
+    let curl=s:getUrl(s:queryFromRequest(a:request))
+
+    if(a:request.mode == 2)
+        execute ":!".curl.' | '.g:CheatPager
+        return
+    elseif(a:request.mode == 0)
+        " Prepare buffer
+        call cheat#createOrSwitchToBuffer()
+        execute 'normal ggdG'
+        " Update ft
+        if(has_key(s:static_filetype,a:request.ft))
+            let ft=s:static_filetype[a:request.ft]
         else
-            let bufname='_cheat.sh'
-            let winnr = bufwinnr('^'.bufname.'$')
-            " Retrieve buffer or create it
-            if ( winnr >= 0 )
-                execute winnr . 'wincmd w'
-                execute 'normal ggdG'
-            else
-                execute ':'.g:CheatSheetReaderCmd.
-                        \ ' +set\ bt=nofile\ bufhidden=wipe '.bufname
-            endif
-            " Update ft
-            if(has_key(s:static_filetype,a:request.ft))
-                let ft=s:static_filetype[a:request.ft]
-            else
-                let ft=a:request.ft
-            endif
-            execute ': set ft='.ft
-            " Add lines and go to beginning
-            call append(0, lines)
-            normal gg
+            let ft=a:request.ft
         endif
+        execute ': set ft='.ft
     endif
+
+    call s:displayRequestMessage(a:request)
+    if(has('job'))
+        if(exists('s:job'))
+            call job_stop(s:job)
+        endif
+        let s:job = job_start(curl, {"callback": "cheat#handleRequestOutput"})
+    else
+        " Simulate asynchronous behavior
+        for line in systemlist(curl)
+            call cheat#handleRequestOutput(0, line)
+        endfor
+    endif
+endfunction
+
+" Output the answer line by line
+function! cheat#handleRequestOutput(channel, msg)
+    " Put vim in foreground if required
+    if(has('jobs'))
+        call foreground()
+    endif
+    " Retrieve lines
+    if(s:prevrequest.mode == 0)
+        call cheat#createOrSwitchToBuffer()
+    endif
+    let s:prevrequest.numLines+=1
+    call append(s:prevrequest.appendpos+s:prevrequest.numLines, a:msg)
+    execute ':'.s:prevrequest.appendpos
 endfunction
 
 " Returns the text that is currently selected
