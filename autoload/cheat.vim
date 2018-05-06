@@ -231,7 +231,6 @@ function! cheat#cheat(query, froml, tol, range, mode)
     else
         " simple query
         let ft=substitute(a:query, '^/\?\([^/]*\)/.*$', '\1', '')
-        call cheat#echo(ft,'e')
         if(ft == a:query)
             let request.ft=g:CheatSheetFt
             " simple query
