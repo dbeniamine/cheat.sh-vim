@@ -116,7 +116,12 @@ function! cheat#naviguate(delta, type)
         return
     endif
 
-    " TODO if mode ==1 remove lines from prev request
+    " Remove previously replaced lines
+    if(request.mode==1)
+        let pos=request.appendpos+1
+        execute ':'.pos
+        execute 'd'.request.numLines
+    endif
 
     " query looks like query/0/0 maybe ,something
     if(a:type == 'Q')
@@ -219,9 +224,9 @@ function! cheat#cheat(query, froml, tol, range, mode)
         if(a:mode == 1 && a:range ==0)
            call cheat#echo('removing lines', 'e')
            normal dd
-           let s:appendpos=getcurpos()[1]-1
+           let request.appendpos=getcurpos()[1]-1
         else
-           let s:appendpos=getcurpos()[1]
+           let request.appendpos=getcurpos()[1]
         endif
     else
         " simple query
@@ -282,10 +287,10 @@ function! s:handleRequest(request)
     else
         " Retrieve lines
         let lines= systemlist(url)
-        let s:prevrequest.lines=len(lines)
+        let s:prevrequest.numLines=len(lines)
         if(a:request.mode == 1)
             " Remove selection (currently only line if whole line selected)
-            call append(s:appendpos, lines)
+            call append(a:request.appendpos, lines)
         else
             let bufname='_cheat.sh'
             let winnr = bufwinnr('^'.bufname.'$')
