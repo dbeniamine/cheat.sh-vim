@@ -53,7 +53,8 @@ if(!exists("g:CheatSheetBufferName"))
     let g:CheatSheetBufferName="_cheat"
 endif
 
-let s:prevrequest={}
+let s:history=[]
+let s:histPos=0
 
 let s:static_filetype = {
             \'c++': 'cpp'
@@ -102,50 +103,64 @@ function! cheat#completeargs(A, L, P)
                 \'\(\n\|^\)\(\S\)', '\1'.cat.'\2', 'g')
 endfunction
 
+function! s:lastRequest()
+    return s:history[0]
+endfunction
+
 " Lookup for previous or next answer (+- a:delta)
 function! cheat#navigate(delta, type)
     if (! (a:delta =~# '^-\?\d\+$'))
         call cheat#echo('Delta must be a number', 'e')
         return
     endif
-    let request = s:prevrequest
+    let request = s:lastRequest()
 
     if(empty(request))
+        call cheat#echo('You must first call :Cheat or :CheatReplace', 'e')
         return
     endif
 
-    try
-        if(request["isCheatSheet"] == 1)
-            call cheat#echo('Navigation is not implemented for cheat sheets', 'e')
+    if(request["isCheatSheet"] == 1)
+        call cheat#echo('Navigation is not implemented for cheat sheets', 'e')
+        return
+    endif
+
+    " Remove previously replaced lines
+    if(request.mode == 1)
+        let pos=request.appendpos+1
+        execute ':'.pos
+        execute 'd'.request.numLines
+    endif
+
+    " query looks like query/0/0 maybe ,something
+    if(a:type == 'Q')
+        let request.q=max([0,request.q+a:delta])
+        let request.a=0
+        let request.s=0
+    elseif(a:type == 'A')
+        let request.a=max([0,request.a+a:delta])
+        let request.s=0
+    elseif(a:type == 'S')
+        let request.s=max([0,request.s+a:delta])
+    elseif(a:type == 'H')
+        " Delta have the wrong sign for History
+        let nextPos=s:histPos-a:delta
+        if(nextPos<0)
+            call cheat#echo('Cannot go into the future', 'e')
+            return
+        elseif(nextPos>=len(s:history))
+            call cheat#echo('No more history', 'e')
             return
         endif
+        let s:histPos=nextPos
+        let request=remove(s:history, s:histPos)
+    else
+        call cheat#echo('Unknown navigation type "'.a:type.'"', 'e')
+        return
+    endif
 
-        " Remove previously replaced lines
-        if(request.mode == 1)
-            let pos=request.appendpos+1
-            execute ':'.pos
-            execute 'd'.request.numLines
-        endif
-
-        " query looks like query/0/0 maybe ,something
-        if(a:type == 'Q')
-            let request.q=max([0,request.q+a:delta])
-            let request.a=0
-            let request.s=0
-        elseif(a:type == 'A')
-            let request.a=max([0,request.a+a:delta])
-            let request.s=0
-        elseif(a:type == 'S')
-            let request.s=max([0,request.s+a:delta])
-        else
-            call cheat#echo('Unknown navigation type "'.a:type.'"', 'e')
-            return
-        endif
-
-        call s:handleRequest(request)
-    catch
-        call cheat#echo('You must first call :Cheat or :CheatReplace', 'e')
-    endtry
+    let request.numLines=0
+    call s:handleRequest(request)
 endfunction
 
 " Preprends ft and make sure that the query has a '+'
@@ -297,7 +312,7 @@ endfunction
 
 " Launch the request with jobs if available
 function! s:handleRequest(request)
-    let s:prevrequest=a:request
+    call insert(s:history, a:request)
     let curl=s:getUrl(s:queryFromRequest(a:request))
 
     if(a:request.mode == 2)
@@ -336,13 +351,14 @@ function! cheat#handleRequestOutput(channel, msg)
     if(has('jobs'))
         call foreground()
     endif
+    let request=s:lastRequest()
     " Retrieve lines
-    if(s:prevrequest.mode == 0)
+    if(request.mode == 0)
         call cheat#createOrSwitchToBuffer()
     endif
-    let s:prevrequest.numLines+=1
-    call append(s:prevrequest.appendpos+s:prevrequest.numLines, a:msg)
-    execute ':'.s:prevrequest.appendpos
+    let request.numLines+=1
+    call append(request.appendpos+request.numLines, a:msg)
+    execute ':'.request.appendpos
 endfunction
 
 " Returns the text that is currently selected

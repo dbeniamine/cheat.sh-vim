@@ -23,7 +23,7 @@ The easiest way to use this plugin is to use one of the following mappings :
 + `<leader>KB` get the answer on a special buffer
 + `<leader>KR` Replace your question by the answer
 
-The plugins also provides two commands :
+The plugins also provides two main commands :
 
     :Cheat
     :CheatReplace
@@ -50,16 +50,18 @@ answers and related with the following mappings :
 + `<leader>KQN` Next Question
 + `<leader>KAN` Next Answer
 + `<leader>KSN` Next "See also"
++ `<leader>KHN` Next in history
 + `<leader>KQP` Previous Question
 + `<leader>KAP` Previous Answer
 + `<leader>KSP` Previous "See also"
++ `<leader>KHP` Previous in history
 
 You can also directly use the function :
 
     :call cheat#navigate(delta, type)
 
 Where delta is a numeric value for moving (1, or -1 for next or previous)
-And type is one of : `'Q'`, `'A'` and `'S'`
+And type is one of : `'Q'`, `'A'`, `'S'` and `H`.
 
 For instance :
 
@@ -73,6 +75,8 @@ request.
 #### Notes
 
 + `<leader>` is usually '\'.
++ **This plugin is still in beta, Replace mode might remove some of your code,
+use with caution.**
 + For more info on cheat sheet sources, see
 [cheat.sh](https://github.com/chubin/cheat.sh).
 
