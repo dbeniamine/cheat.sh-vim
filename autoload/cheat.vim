@@ -59,6 +59,11 @@ if(!exists("g:CheatSheetDefaultSelection"))
     let g:CheatSheetDefaultSelection="line"
 endif
 
+" Show comments in answers by default
+if(!exists("g:CheatSheetShowCommentsByDefault"))
+    let g:CheatSheetShowCommentsByDefault=1
+endif
+
 let s:history=[]
 let s:histPos=0
 
@@ -218,6 +223,7 @@ function! s:queryFromRequest(request)
         let query.='/'.a:request.q.'/'.a:request.a.','.a:request.s
     endif
     let query.='?'
+    let query.=g:CheatSheetUrlSettings
     " Color pager requests
     if(a:request.mode!=2)
         let query.='T'
@@ -225,7 +231,9 @@ function! s:queryFromRequest(request)
     if(a:request.comments==0)
         let query.='Q'
     endif
-    let query.=g:CheatSheetUrlSettings
+    if(exists("g:CheatSheetPagerStyle"))
+        let query.="&style=".g:CheatSheetPagerStyle
+    endif
     return query
 endfunction
 
@@ -235,7 +243,7 @@ function! s:initRequest()
     let request.a=0
     let request.q=0
     let request.s=0
-    let request.comments=1
+    let request.comments=g:CheatSheetShowCommentsByDefault
     let request.ft=&ft
     let request["isCheatSheet"]=0
     let request.appendpos=0
@@ -281,9 +289,7 @@ endfunction
 
 " Use for keywordprg, no selection here directly the query
 function! cheat#pager(query)
-    let request=s:initRequest()
-    let request.query=s:PrepareFtQuery(a:query)
-    call s:handleRequest(request)
+    call cheat#cheat(a:query, 0, 0, 0, 2)
 endfunction
 
 " Prints a message about the query to be prossessed

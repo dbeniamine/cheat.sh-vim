@@ -107,8 +107,16 @@ are the default values that will be used if you do not change them) :
     " cheat sheet base url
     let g:CheatSheetBaseUrl='cheat.sh'
 
-    " cheat sheet settings
+    " cheat sheet settings do not include style settings neiter comments, 
+    " see other options below
     let g:CheatSheetUrlSettings='q'
+
+    " pygmentize theme used for pager output, see :CheatPager :styles-demo
+    let g:CheatSheetPagerStyle=rrt
+
+    " Show comments in answers by default
+    " (setting this to 0 means giving ?Q to the server)
+    let g:CheatSheetShowCommentsByDefault=1
 
     " cheat sheet pager command
     let g:CheatPager='less -R'
