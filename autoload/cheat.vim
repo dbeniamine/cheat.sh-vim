@@ -49,8 +49,14 @@ if(!exists("g:CheatPager"))
     let g:CheatPager='less -R'
 endif
 
+" cheat sheet buffer name
 if(!exists("g:CheatSheetBufferName"))
     let g:CheatSheetBufferName="_cheat"
+endif
+
+" Default selection (lines or word)
+if(!exists("g:CheatSheetDefaultSelection"))
+    let g:CheatSheetDefaultSelection="line"
 endif
 
 let s:history=[]
@@ -116,7 +122,7 @@ function! cheat#navigate(delta, type)
     let request = s:lastRequest()
 
     if(empty(request))
-        call cheat#echo('You must first call :Cheat or :CheatReplace', 'e')
+        call cheat#echo('You must first 0,0call :Cheat or :CheatReplace', 'e')
         return
     endif
 
@@ -244,7 +250,7 @@ endfunction
 "       tol     : the last line (if no queries)
 "       range   : the number of selected words in visual mode
 "       mode    : the output mode : 0=> buffer, 1=> replace, 2=>pager
-function! cheat#cheat(query, froml, tol, range, mode)
+function! cheat#cheat(query, froml, tol, range, mode) range
     let request=s:initRequest()
     if(a:query == "")
         " No explicit query, prepare query from selection
@@ -371,23 +377,23 @@ endfunction
 " Returns the text that is currently selected
 function! s:get_visual_selection(froml, tol, range)
     " Why is this not a built-in Vim script function?!
-    if(a:range>0)
-        "visual mode
-        let [line_start, column_start] = getpos("'<")[1:2]
-        let [line_end, column_end] = getpos("'>")[1:2]
-    else
-        let line_start=a:froml
-        let line_end=a:tol
+    if(a:range<=0)
+        if(g:CheatSheetDefaultSelection == "line")
+            return join(getline(a:froml, a:tol), " ")
+        else
+            return expand("<cword>")
+        endif
     endif
+    "visual mode
+    let [line_start, column_start] = getpos("'<")[1:2]
+    let [line_end, column_end] = getpos("'>")[1:2]
     let lines = getline(line_start, line_end)
     if len(lines) == 0
         return ''
     endif
-    if(a:range>0)
-        let lines[-1] = lines[-1][: column_end - (&selection == 'inclusive' ? 1 : 2)]
-        let lines[0] = lines[0][column_start - 1:]
-    endif
-    return join(lines, "\n")
+    let lines[-1] = lines[-1][: column_end - (&selection == 'inclusive' ? 1 : 2)]
+    let lines[0] = lines[0][column_start - 1:]
+    return join(lines, " ")
 endfunction
 
 let cpo=save_cpo

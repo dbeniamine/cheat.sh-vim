@@ -131,6 +131,12 @@ the default values that will be used if you do not change them) :
     " cheat sheet pager command
     let g:CheatPager='less -R'
 
+    " cheat sheet buffer name
+    let g:CheatSheetBufferName="_cheat"
+
+    " Default selection in normal mode (line for whole line, word for word under cursor)
+    let g:CheatSheetDefaultSelection="line"
+
 You can also disable the mappings (see plugin/cheat.vim to redo the mappings
 manually)
 
