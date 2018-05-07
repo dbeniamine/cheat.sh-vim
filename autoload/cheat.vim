@@ -142,7 +142,7 @@ function! cheat#navigate(delta, type)
         let request.s=0
     elseif(a:type == 'S')
         let request.s=max([0,request.s+a:delta])
-    elseif(a:type == 'H')
+    elseif(a:type == 'H' || a:type == 'C')
         " Delta have the wrong sign for History
         let nextPos=s:histPos-a:delta
         if(nextPos<0)
@@ -154,6 +154,9 @@ function! cheat#navigate(delta, type)
         endif
         let s:histPos=nextPos
         let request=remove(s:history, s:histPos)
+        if(a:type == 'C')
+            let request.comments=(request.comments+1)%2
+        endif
     else
         call cheat#echo('Unknown navigation type "'.a:type.'"', 'e')
         return
@@ -213,6 +216,9 @@ function! s:queryFromRequest(request)
     if(a:request.mode!=2)
         let query.='T'
     endif
+    if(a:request.comments==0)
+        let query.='Q'
+    endif
     let query.=g:CheatSheetUrlSettings
     return query
 endfunction
@@ -223,6 +229,7 @@ function! s:initRequest()
     let request.a=0
     let request.q=0
     let request.s=0
+    let request.comments=1
     let request.ft=&ft
     let request["isCheatSheet"]=0
     let request.appendpos=0

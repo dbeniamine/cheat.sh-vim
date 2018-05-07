@@ -20,6 +20,7 @@ The easiest way to use this plugin is to use one of the following mappings :
 + `<leader>kK` same as `K`
 + `<leader>KB` get the answer on a special buffer
 + `<leader>KR` Replace your question by the answer
++ `<leader>KC` Replay last query, toggling comments
 
 The plugins also provides two main commands :
 >
@@ -58,8 +59,9 @@ You can also directly use the function :
 >
     :call cheat#navigate(delta, type)
 <
-Where delta is a numeric value for moving (1, or -1 for next or previous)
-And type is one of : `'Q'`, `'A'`, `'S'` and `H`.
+Where delta is a numeric value for moving (1, or -1 for next or previous) And
+type is one of : `'Q'`, `'A'`, `'S'`, `H` (history), and `C` (same as history
+but toggle comments)
 
 For instance :
 >

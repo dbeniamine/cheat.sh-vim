@@ -64,6 +64,10 @@ if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
     vnoremap <script> <silent> <leader>KR
                 \ :call cheat#cheat("", -1, -1, 2, 1)<CR>
 
+    " Toggle comments
+    nnoremap <script> <silent> <leader>KC :call cheat#navigate(0, 'C')<CR>
+    vnoremap <script> <silent> <leader>KC :call cheat#navigate(0, 'C')<CR>
+
     " Next
     nnoremap <script> <silent> <leader>KQN :call cheat#navigate(1,'Q')<CR>
     vnoremap <script> <silent> <leader>KQN :call cheat#navigate(1,'Q')<CR>
