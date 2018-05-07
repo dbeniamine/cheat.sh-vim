@@ -33,7 +33,7 @@ command! -nargs=? -range -complete=custom,cheat#completeargs CheatReplace
     \ call cheat#cheat(<q-args>, <line1>, <line2>, <range>, 1)
 
 command! -nargs=? -range -complete=custom,cheat#completeargs CheatPager
-    \ call cheat#pager(<q-args>)
+    \ call cheat#cheat(<q-args>, <line1>, <line2>, <range>, 2)
 
 command! -nargs=1 CheatNavigateQuestions call cheat#navigate(<q-args>, 'Q')
 command! -nargs=1 CheatNavigateAnswers call cheat#navigate(<q-args>, 'A')

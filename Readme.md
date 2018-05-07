@@ -19,7 +19,7 @@ There is an asciinema showing how it works :
 The easiest way to use this plugin is to use one of the following mappings :
 
 + `K` get answer on the word under the cursor or the selection on a pager
-+ `<leader>kK` same as `K`
++ `<leader>kK` same as `K` but works on lines or visual selection
 + `<leader>KB` get the answer on a special buffer
 + `<leader>KR` Replace your question by the answer
 + `<leader>KC` Replay last query, toggling comments
@@ -28,20 +28,15 @@ The plugins also provides two main commands :
 
     :Cheat
     :CheatReplace
+    :CheatPager
 
 + These commands takes 0 or 1 argument.
 + If you give no argument, it will send the language of the current buffer and
 the visual selection (or the current line in `normal` mode) as a query to
-cheat.sh and show the answer in a new buffer (`:Cheat`) or in place of your
-question (`:CheatReplace`).
+cheat.sh and show the answer in a new buffer (`:Cheat`), in place of your
+question (`:CheatReplace`) or in a pager (`:CheatPager`).
 + If one argument is given, you can complete it from a list of available cheat
 sheets or write your own [query](https://github.com/chubin/cheat.sh#search).
-+ There are two mappings `<localeader>KB` and `<leader>KR` (Cheat Replace)
-to run these commands without any arguments.
-
-It also adds a `:CheatPager` command that is not designed to be directly used
-by the end user. This command is used to lookup cheat sheets instead of calling
-`man` when you hit `K` in normal and visual modes.
 
 #### Navigate through answers
 
