@@ -65,7 +65,7 @@ if(!exists("g:CheatSheetShowCommentsByDefault"))
 endif
 
 let s:history=[]
-let s:histPos=0
+let s:histPos=-1
 
 let s:static_filetype = {
             \'c++': 'cpp'
@@ -115,7 +115,7 @@ function! cheat#completeargs(A, L, P)
 endfunction
 
 function! s:lastRequest()
-    return s:history[0]
+    return s:history[s:histPos]
 endfunction
 
 " Lookup for previous or next answer (+- a:delta)
@@ -124,15 +124,52 @@ function! cheat#navigate(delta, type)
         call cheat#echo('Delta must be a number', 'e')
         return
     endif
-    let request = s:lastRequest()
 
-    if(empty(request))
+    if(empty(s:lastRequest()))
         call cheat#echo('You must first 0,0call :Cheat or :CheatReplace', 'e')
         return
     endif
 
-    if(request["isCheatSheet"] == 1)
+    " Move in history if required
+    if(a:type=='H')
+        let nextPos=s:histPos+a:delta
+        if(nextPos<0)
+            call cheat#echo('Cannot go into the future', 'e')
+            return
+        elseif(nextPos>=len(s:history))
+            call cheat#echo('No more history', 'e')
+            return
+        endif
+        let s:histPos=nextPos
+        " Work directly on request from history, no copy
+        let s:isInHistory=1
+        let request = s:lastRequest()
+    else
+        " Retrieve request
+        let s:isInHistory=0
+        let request = copy(s:lastRequest())
+    endif
+
+
+    if(request.isCheatSheet == 1)
         call cheat#echo('Navigation is not implemented for cheat sheets', 'e')
+        return
+    endif
+
+    " Change parameters
+    if(a:type == 'Q')
+        let request.q=max([0,request.q+a:delta])
+        let request.a=0
+        let request.s=0
+    elseif(a:type == 'A')
+        let request.a=max([0,request.a+a:delta])
+        let request.s=0
+    elseif(a:type == 'S')
+        let request.s=max([0,request.s+a:delta])
+    elseif(a:type == 'C')
+        let request.comments=(request.comments+1)%2
+    elseif(a:type !='H')
+        call cheat#echo('Unknown navigation type "'.a:type.'"', 'e')
         return
     endif
 
@@ -143,37 +180,8 @@ function! cheat#navigate(delta, type)
         execute 'd'.request.numLines
     endif
 
-    " query looks like query/0/0 maybe ,something
-    if(a:type == 'Q')
-        let request.q=max([0,request.q+a:delta])
-        let request.a=0
-        let request.s=0
-    elseif(a:type == 'A')
-        let request.a=max([0,request.a+a:delta])
-        let request.s=0
-    elseif(a:type == 'S')
-        let request.s=max([0,request.s+a:delta])
-    elseif(a:type == 'H' || a:type == 'C')
-        " Delta have the wrong sign for History
-        let nextPos=s:histPos-a:delta
-        if(nextPos<0)
-            call cheat#echo('Cannot go into the future', 'e')
-            return
-        elseif(nextPos>=len(s:history))
-            call cheat#echo('No more history', 'e')
-            return
-        endif
-        let s:histPos=nextPos
-        let request=remove(s:history, s:histPos)
-        if(a:type == 'C')
-            let request.comments=(request.comments+1)%2
-        endif
-    else
-        call cheat#echo('Unknown navigation type "'.a:type.'"', 'e')
-        return
-    endif
-
     let request.numLines=0
+    echo request
     call s:handleRequest(request)
 endfunction
 
@@ -284,6 +292,8 @@ function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
             let request=s:requestFromQuery(query, request)
         endif
     endif
+    " Reactivate history if required
+    let s:isInHistory=0
     let request.mode=a:mode
     call s:handleRequest(request)
 endfunction
@@ -325,9 +335,21 @@ function! cheat#createOrSwitchToBuffer()
     endif
 endfunction
 
+" Add request to history if not already in
+function! s:saveRequest(request)
+    if(s:isInHistory == 0 )
+        let s:histPos+=1
+        if(s:histPos < len(s:history))
+            " We are back in history, remove meaning less nexts
+            call remove(s:history, s:histPos, -1)
+        endif
+        call insert(s:history, a:request, s:histPos)
+    endif
+endfunction
+
 " Launch the request with jobs if available
 function! s:handleRequest(request)
-    call insert(s:history, a:request)
+    call s:saveRequest(a:request)
     let curl=s:getUrl(s:queryFromRequest(a:request))
 
     if(a:request.mode == 2)
@@ -371,12 +393,14 @@ function! cheat#handleRequestOutput(channel, msg)
         call foreground()
     endif
     let request=s:lastRequest()
+    echo a:msg
     " Retrieve lines
     if(request.mode == 0)
         call cheat#createOrSwitchToBuffer()
     endif
-    let request.numLines+=1
+    echo request.numLines
     call append(request.appendpos+request.numLines, a:msg)
+    let request.numLines+=1
     execute ':'.request.appendpos
 endfunction
 
