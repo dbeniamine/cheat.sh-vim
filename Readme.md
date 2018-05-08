@@ -32,11 +32,13 @@ The plugins also provides two main commands :
 
 + These commands takes 0 or 1 argument.
 + If you give no argument, it will send the language of the current buffer and
-the visual selection (or the current line in `normal` mode) as a query to
-cheat.sh and show the answer in a new buffer (`:Cheat`), in place of your
-question (`:CheatReplace`) or in a pager (`:CheatPager`).
+the visual selection (or the current line / word in `normal` mode) as a plus
+query to cheat.sh and show the answer in a new buffer (`:Cheat`), in place of
+your question (`:CheatReplace`) or in a pager (`:CheatPager`).
 + If one argument is given, you can complete it from a list of available cheat
 sheets or write your own [query](https://github.com/chubin/cheat.sh#search).
++ They also take a `bang` that make same transform the query into a plus query:
+for instance : `:Cheat! factory` is the same as `:Cheat &ft/factory+`.
 
 #### Navigate through answers
 

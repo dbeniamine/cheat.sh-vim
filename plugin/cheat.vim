@@ -26,14 +26,14 @@ set cpo&vim
 let g:loaded_cheat_sh = "v0.2-dev"
 
 " command definition
-command! -nargs=? -range -complete=custom,cheat#completeargs Cheat
-    \ call cheat#cheat(<q-args>, <line1>, <line2>, <range>, 0)
+command! -nargs=? -bang -range -complete=custom,cheat#completeargs Cheat
+    \ call cheat#cheat(<q-args>, <line1>, <line2>, <range>, 0, "<bang>")
 
-command! -nargs=? -range -complete=custom,cheat#completeargs CheatReplace
-    \ call cheat#cheat(<q-args>, <line1>, <line2>, <range>, 1)
+command! -nargs=? -bang -range -complete=custom,cheat#completeargs CheatReplace
+    \ call cheat#cheat(<q-args>, <line1>, <line2>, <range>, 1, "<bang>")
 
-command! -nargs=? -range -complete=custom,cheat#completeargs CheatPager
-    \ call cheat#cheat(<q-args>, <line1>, <line2>, <range>, 2)
+command! -nargs=? -bang -range -complete=custom,cheat#completeargs CheatPager
+    \ call cheat#cheat(<q-args>, <line1>, <line2>, <range>, 2, "<bang>")
 
 command! -nargs=1 CheatNavigateQuestions call cheat#navigate(<q-args>, 'Q')
 command! -nargs=1 CheatNavigateAnswers call cheat#navigate(<q-args>, 'A')
@@ -41,28 +41,28 @@ command! -nargs=1 CheatSeeAlso call cheat#navigate(<q-args>, 'S')
 command! -nargs=1 CheatHistory call cheat#navigate(<q-args>, 'H')
 
 if(!exists("g:CheatDoNotReplaceKeywordPrg") || g:CheatDoNotReplaceKeywordPrg ==0)
-    set keywordprg=:CheatPager
+    set keywordprg=:CheatPager!
 endif
 
 if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
     " Buffer
     nnoremap <script> <silent> <leader>KB
-                \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 0)<CR>
+                \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 0, '!')<CR>
     vnoremap <script> <silent> <leader>KB
-                \ :call cheat#cheat("", -1, -1, 2, 0)<CR>
+                \ :call cheat#cheat("", -1, -1, 2, 0, '!')<CR>
  
     " Pager
     nnoremap <script> <silent> <leader>KK
-                \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 2)<CR>
+                \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 2, '!')<CR>
     vnoremap <script> <silent> <leader>KK
-                \ :call cheat#cheat("", -1, -1, 2, 2)<CR>
+                \ :call cheat#cheat("", -1, -1, 2, 2, '!')<CR>
 
 
     " Replace
     nnoremap <script> <silent> <leader>KR
-                \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 1)<CR>
+                \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 1, '!')<CR>
     vnoremap <script> <silent> <leader>KR
-                \ :call cheat#cheat("", -1, -1, 2, 1)<CR>
+                \ :call cheat#cheat("", -1, -1, 2, 1, '!')<CR>
 
     " Toggle comments
     nnoremap <script> <silent> <leader>KC :call cheat#navigate(0, 'C')<CR>

@@ -178,7 +178,7 @@ function! cheat#navigate(delta, type)
 endfunction
 
 " Preprends ft and make sure that the query has a '+'
-function! s:PrepareFtQuery(query)
+function! s:preparePlusQuery(query)
     let query=&ft.'/'.substitute(a:query, ' ', '+', 'g')
     " There must be a + in the query
     if(match(query, '+') == -1)
@@ -253,43 +253,39 @@ endfunction
 
 " Handle a cheat query
 " Args :
-"       query   : the text query
-"       froml   : the first line (if no queries)
-"       tol     : the last line (if no queries)
-"       range   : the number of selected words in visual mode
-"       mode    : the output mode : 0=> buffer, 1=> replace, 2=>pager
-function! cheat#cheat(query, froml, tol, range, mode) range
+"       query       : the text query
+"       froml       : the first line (if no queries)
+"       tol         : the last line (if no queries)
+"       range       : the number of selected words in visual mode
+"       mode        : the output mode : 0=> buffer, 1=> replace, 2=>pager
+"       isplusquery   : should we do a Ft query
+function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
     let request=s:initRequest()
     if(a:query == "")
-        " No explicit query, prepare query from selection
-        let request.query=s:PrepareFtQuery(
-                    \substitute(s:get_visual_selection(a:froml,a:tol, a:range),
-                    \'^\s*', '', ''))
+        let query=substitute(s:get_visual_selection(a:froml,a:tol, a:range),
+                    \'^\s*', '', '')
+    else
+        let query=a:query
+    endif
 
-        if(a:mode == 1)
-            call cheat#echo('removing lines', 'e')
-            normal dd
-            let request.appendpos=getcurpos()[1]-1
-        endif
+    if(a:isplusquery == '!')
+        " No explicit query, prepare query from selection
+        let request.query=s:preparePlusQuery(query)
     else
         " simple query
-        let ft=substitute(a:query, '^/\?\([^/]*\)/.*$', '\1', '')
-        if(ft == a:query)
-            let request.ft=g:CheatSheetFt
+        let ft=substitute(query, '^/\?\([^/]*\)/.*$', '\1', '')
+        if(ft == query)
             " simple query
+            let request.ft=g:CheatSheetFt
             let request["isCheatSheet"]=1
-            let request.query=a:query
+            let request.query=query
         else
-            let request=s:requestFromQuery(a:query, request)
+            " arbitrary query
+            let request=s:requestFromQuery(query, request)
         endif
     endif
     let request.mode=a:mode
     call s:handleRequest(request)
-endfunction
-
-" Use for keywordprg, no selection here directly the query
-function! cheat#pager(query)
-    call cheat#cheat(a:query, 0, 0, 0, 2)
 endfunction
 
 " Prints a message about the query to be prossessed
@@ -337,6 +333,10 @@ function! s:handleRequest(request)
     if(a:request.mode == 2)
         execute ":!".curl.' | '.g:CheatPager
         return
+    elseif(a:request.mode == 1)
+        call cheat#echo('removing lines', 'e')
+        normal dd
+        let a:request.appendpos=getcurpos()[1]-1
     elseif(a:request.mode == 0)
         " Prepare buffer
         call cheat#createOrSwitchToBuffer()
