@@ -110,7 +110,7 @@ function! cheat#completeargs(A, L, P)
         let url=':list'
         let cat=''
     endif
-    return substitute(system(s:getUrl(url)),
+    silent return substitute(system(s:getUrl(url)),
                 \'\(\n\|^\)\(\S\)', '\1'.cat.'\2', 'g')
 endfunction
 
@@ -352,7 +352,8 @@ function! s:handleRequest(request)
     let curl=s:getUrl(s:queryFromRequest(a:request))
 
     if(a:request.mode == 2)
-        execute ":!".curl.' | '.g:CheatPager
+        execute ":silent !".curl.' | '.g:CheatPager
+        redraw!
         return
     elseif(a:request.mode == 1)
         call cheat#echo('removing lines', 'e')
@@ -376,13 +377,14 @@ function! s:handleRequest(request)
         if(exists('s:job'))
             call job_stop(s:job)
         endif
-        let s:job = job_start(curl, {"callback": "cheat#handleRequestOutput"})
+        silent let s:job = job_start(curl, {"callback": "cheat#handleRequestOutput"})
     else
         " Simulate asynchronous behavior
-        for line in systemlist(curl)
+        silent for line in systemlist(curl)
             call cheat#handleRequestOutput(0, line)
         endfor
     endif
+    redraw!
 endfunction
 
 " Output the answer line by line
