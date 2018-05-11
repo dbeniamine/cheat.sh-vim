@@ -181,7 +181,6 @@ function! cheat#navigate(delta, type)
     endif
 
     let request.numLines=0
-    echo request
     call s:handleRequest(request)
 endfunction
 
@@ -393,12 +392,10 @@ function! cheat#handleRequestOutput(channel, msg)
         call foreground()
     endif
     let request=s:lastRequest()
-    echo a:msg
     " Retrieve lines
     if(request.mode == 0)
         call cheat#createOrSwitchToBuffer()
     endif
-    echo request.numLines
     call append(request.appendpos+request.numLines, a:msg)
     let request.numLines+=1
     execute ':'.request.appendpos
