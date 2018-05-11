@@ -26,14 +26,14 @@ set cpo&vim
 let g:loaded_cheat_sh = "v0.2-dev"
 
 " command definition
-command! -nargs=? -bang -range -complete=custom,cheat#completeargs Cheat
-    \ call cheat#cheat(<q-args>, <line1>, <line2>, <range>, 0, "<bang>")
+command! -nargs=? -bang -count -complete=custom,cheat#completeargs Cheat
+    \ call cheat#cheat(<q-args>, <line1>, <line2>, <count>, 0, "<bang>")
 
-command! -nargs=? -bang -range -complete=custom,cheat#completeargs CheatReplace
-    \ call cheat#cheat(<q-args>, <line1>, <line2>, <range>, 1, "<bang>")
+command! -nargs=? -bang -count -complete=custom,cheat#completeargs CheatReplace
+    \ call cheat#cheat(<q-args>, <line1>, <line2>, <count>, 1, "<bang>")
 
-command! -nargs=? -bang -range -complete=custom,cheat#completeargs CheatPager
-    \ call cheat#cheat(<q-args>, <line1>, <line2>, <range>, 2, "<bang>")
+command! -nargs=? -bang -count -complete=custom,cheat#completeargs CheatPager
+    \ call cheat#cheat(<q-args>, <line1>, <line2>, <count>, 2, "<bang>")
 
 command! -nargs=1 CheatNavigateQuestions call cheat#navigate(<q-args>, 'Q')
 command! -nargs=1 CheatNavigateAnswers call cheat#navigate(<q-args>, 'A')
