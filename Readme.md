@@ -19,7 +19,7 @@ There is an asciinema showing how it works :
 The easiest way to use this plugin is to use one of the following mappings :
 
 + `K` get answer on the word under the cursor or the selection on a pager
-+ `<leader>kK` same as `K` but works on lines or visual selection
++ `<leader>KK` same as `K` but works on lines or visual selection
 + `<leader>KB` get the answer on a special buffer
 + `<leader>KR` Replace your question by the answer
 + `<leader>KC` Replay last query, toggling comments
