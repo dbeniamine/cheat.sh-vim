@@ -331,6 +331,18 @@ function! cheat#createOrSwitchToBuffer()
         execute ':'.g:CheatSheetReaderCmd.
                 \ ' +set\ bt=nofile\ bufhidden=wipe '.
                 \g:CheatSheetBufferName
+        if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
+            nnoremap <buffer> <silent> <localleader>h :call cheat#navigate(-1,'A')<CR>
+            nnoremap <buffer> <silent> <localleader>j :call cheat#navigate(1,'Q')<CR>
+            nnoremap <buffer> <silent> <localleader>k :call cheat#navigate(-1,'Q')<CR>
+            nnoremap <buffer> <silent> <localleader>l :call cheat#navigate(1,'A')<CR>
+
+            nnoremap <buffer> <silent> <localleader>H :call cheat#navigate(-1,'H')<CR>
+            nnoremap <buffer> <silent> <localleader>J :call cheat#navigate(1,'S')<CR>
+            nnoremap <buffer> <silent> <localleader>K :call cheat#navigate(-1,'S')<CR>
+            nnoremap <buffer> <silent> <localleader>L :call cheat#navigate(1,'H')<CR>
+
+        endif
     endif
 endfunction
 
@@ -350,6 +362,8 @@ endfunction
 function! s:handleRequest(request)
     call s:saveRequest(a:request)
     let curl=s:getUrl(s:queryFromRequest(a:request))
+    echo curl
+    sleep 1
 
     if(a:request.mode == 2)
         execute ":silent !".curl.' | '.g:CheatPager

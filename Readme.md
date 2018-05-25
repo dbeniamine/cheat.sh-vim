@@ -40,7 +40,7 @@ sheets or write your own [query](https://github.com/chubin/cheat.sh#search).
 + They also take a `bang` that make same transform the query into a plus query:
 for instance : `:Cheat! factory` is the same as `:Cheat &ft/factory+`.
 
-#### Navigate through answers
+#### Navigate
 
 Once you have called on of these commands, you can navigate through questions,
 answers and related with the following mappings :
@@ -53,6 +53,18 @@ answers and related with the following mappings :
 + `<leader>KAP` Previous Answer
 + `<leader>KSP` Previous "See also"
 + `<leader>KHP` Previous in history
+
+In the cheat buffer, the following mappings are also available :
+
++ `<localleader>h` Previous Answer
++ `<localleader>j` Next Question
++ `<localleader>k` Previous Question
++ `<localleader>l` Next Answer
++ `<localleader>H` Previous history
++ `<localleader>J` Next "See also"
++ `<localleader>K` Previous "See also"
++ `<localleader>L` Next history
+
 
 You can also directly use the function :
 
