@@ -174,7 +174,7 @@ function! cheat#navigate(delta, type)
     endif
 
     " Remove previously replaced lines
-    if(request.mode == 1)
+    if(request.mode == 1 || request.mode == 3)
         let pos=request.appendpos+1
         execute ':'.pos
         execute 'd'.request.numLines
@@ -264,7 +264,7 @@ endfunction
 "       froml       : the first line (if no queries)
 "       tol         : the last line (if no queries)
 "       range       : the number of selected words in visual mode
-"       mode        : the output mode : 0=> buffer, 1=> replace, 2=>pager
+"       mode        : the output mode : 0=> buffer, 1=> replace, 2=>pager, 3=> paste
 "       isplusquery   : should we do a Ft query
 function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
     let request=s:initRequest()
@@ -362,8 +362,6 @@ endfunction
 function! s:handleRequest(request)
     call s:saveRequest(a:request)
     let curl=s:getUrl(s:queryFromRequest(a:request))
-    echo curl
-    sleep 1
 
     if(a:request.mode == 2)
         execute ":silent !".curl.' | '.g:CheatPager
@@ -373,6 +371,8 @@ function! s:handleRequest(request)
         call cheat#echo('removing lines', 'e')
         normal dd
         let a:request.appendpos=getcurpos()[1]-1
+    elseif(a:request.mode == 3)
+        let a:request.appendpos=getcurpos()[1]
     elseif(a:request.mode == 0)
         " Prepare buffer
         call cheat#createOrSwitchToBuffer()

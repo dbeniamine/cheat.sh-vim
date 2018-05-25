@@ -21,12 +21,14 @@ The easiest way to use this plugin is to use one of the following mappings :
 + `<leader>KK` same as `K` but works on lines or visual selection
 + `<leader>KB` get the answer on a special buffer
 + `<leader>KR` Replace your question by the answer
++ `<leader>KP` Past the answer below your question
 + `<leader>KC` Replay last query, toggling comments
 
 The plugins also provides two main commands :
 >
     :Cheat
     :CheatReplace
+    :CheatPast
     :CheatPager
 <
 + These commands takes 0 or 1 argument.

@@ -35,6 +35,9 @@ command! -nargs=? -bang -count -complete=custom,cheat#completeargs CheatReplace
 command! -nargs=? -bang -count -complete=custom,cheat#completeargs CheatPager
     \ call cheat#cheat(<q-args>, <line1>, <line2>, <count>, 2, "<bang>")
 
+command! -nargs=? -bang -count -complete=custom,cheat#completeargs CheatPaste
+    \ call cheat#cheat(<q-args>, <line1>, <line2>, <count>, 3, "<bang>")
+
 command! -nargs=1 CheatNavigateQuestions call cheat#navigate(<q-args>, 'Q')
 command! -nargs=1 CheatNavigateAnswers call cheat#navigate(<q-args>, 'A')
 command! -nargs=1 CheatSeeAlso call cheat#navigate(<q-args>, 'S')
@@ -63,6 +66,12 @@ if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
                 \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 1, '!')<CR>
     vnoremap <script> <silent> <leader>KR
                 \ :call cheat#cheat("", -1, -1, 2, 1, '!')<CR>
+
+    " Paste
+    nnoremap <script> <silent> <leader>KP
+                \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 3, '!')<CR>
+    vnoremap <script> <silent> <leader>KR
+                \ :call cheat#cheat("", -1, -1, 3, 1, '!')<CR>
 
     " Toggle comments
     nnoremap <script> <silent> <leader>KC :call cheat#navigate(0, 'C')<CR>
