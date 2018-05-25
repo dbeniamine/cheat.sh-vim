@@ -36,7 +36,7 @@ endif
 
 " cheat sheet base url
 if(!exists("g:CheatSheetBaseUrl"))
-    let g:CheatSheetBaseUrl='cheat.sh'
+    let g:CheatSheetBaseUrl='https://cheat.sh'
 endif
 
 " cheat sheet settings
