@@ -1,3 +1,5 @@
+*This repository is a mirror, for developpement and issues, please go to [gitlab](https://gitlab.com/dbeniamine/cheat.sh-vim/)*
+
 # Vim Cheat.sh
 
 This is a highly configurable vim plugin to browse cheat sheet from
