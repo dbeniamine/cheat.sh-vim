@@ -36,7 +36,7 @@ endif
 
 " cheat sheet base url
 if(!exists("g:CheatSheetBaseUrl"))
-    let g:CheatSheetBaseUrl='https://cheat.sh'
+    let g:CheatSheetBaseUrl='https://cht.sh'
 endif
 
 " cheat sheet settings
@@ -238,7 +238,7 @@ function! s:queryFromRequest(request)
     if(a:request.comments==0)
         let query.='Q'
     endif
-    if(exists("g:CheatSheetPagerStyle"))
+    if(exists("g:CheatSheetPagerStyle") && a:request.mode==2)
         let query.="&style=".g:CheatSheetPagerStyle
     endif
     return query
@@ -362,6 +362,7 @@ endfunction
 function! s:handleRequest(request)
     call s:saveRequest(a:request)
     let curl=s:getUrl(s:queryFromRequest(a:request))
+    echo curl
 
     if(a:request.mode == 2)
         execute ":silent !".curl.' | '.g:CheatPager
