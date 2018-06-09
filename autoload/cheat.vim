@@ -267,6 +267,11 @@ endfunction
 "       mode        : the output mode : 0=> buffer, 1=> replace, 2=>pager, 3=> paste
 "       isplusquery   : should we do a Ft query
 function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
+    if(a:mode ==2 && match(execute('version'), 'NVIM') != -1)
+        call cheat#echo('Pager mode does not work with neovim'.
+                    \' use <leader>KB instead', 'e')
+        return
+    endif
     let request=s:initRequest()
     if(a:query == "")
         let query=substitute(s:get_visual_selection(a:froml,a:tol, a:range),
