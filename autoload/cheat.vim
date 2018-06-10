@@ -69,11 +69,6 @@ if(!exists("g:CheatSheetDefaultMode"))
     let g:CheatSheetDefaultMode=0
 endif
 
-" Default query mode
-if(!exists("g:CheatSheetProviders"))
-    let g:CheatSheetProviders=['quickfix', 'syntastic']
-endif
-
 let s:history=[]
 let s:histPos=-1
 
@@ -269,16 +264,6 @@ function! s:initRequest()
     return request
 endfunction
 
-function s:getError()
-    for provider in g:CheatSheetProviders
-        let query=function('cheat#providers#'.provider.'#GetError')()
-        if(query != "")
-            return trim(substitute(query, ' ', '+', 'g'),'+')
-        endif
-    endfor
-    return ""
-endfunction
-
 " Handle a cheat query
 " Args :
 "       query       : the text query
@@ -295,7 +280,7 @@ function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
     endif
     let request=s:initRequest()
     if(a:mode == 4 )
-        let query=s:getError()
+        let query=cheat#providers#GetError()
         echo query
         if(query == "")
             call cheat#echo("No error dectected, have you saved your buffer ?", 'w')
