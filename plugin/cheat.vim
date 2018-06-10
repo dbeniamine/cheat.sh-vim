@@ -23,7 +23,7 @@ endif
 let g:save_cpo = &cpo
 set cpo&vim
 
-let g:loaded_cheat_sh = "v0.2-dev"
+let g:loaded_cheat_sh = "v0.2"
 
 " command definition
 command! -nargs=? -bang -count -complete=custom,cheat#completeargs Cheat
