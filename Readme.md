@@ -19,8 +19,11 @@ There is an asciinema showing how it works :
 
 The easiest way to use this plugin is to use one of the following mappings :
 
-+ `K` get answer on the word under the cursor or the selection on a pager
-+ `<leader>KK` same as `K` but works on lines or visual selection
++ `K` get answer on the word under the cursor or the selection on a pager (this
+feature requires vim >= 7.4.1833, you can check if have the right version with :
+`:echo has("patch-7.4.1833")`)
++ `<leader>KK` same as `K` but works on lines or visual selection (not working
+on neovim, because they killed interactive commands with `:!`)
 + `<leader>KB` get the answer on a special buffer
 + `<leader>KR` Replace your question by the answer
 + `<leader>KP` Past the answer below your question
