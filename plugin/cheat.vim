@@ -29,6 +29,9 @@ let g:loaded_cheat_sh = "v0.2-dev"
 command! -nargs=? -bang -count -complete=custom,cheat#completeargs Cheat
     \ call cheat#cheat(<q-args>, <line1>, <line2>, <count>, 0, "<bang>")
 
+command! -nargs=? -count CheatError
+    \ call cheat#cheat('', -1, -1, -1, 4, '!')
+
 command! -nargs=? -bang -count -complete=custom,cheat#completeargs CheatReplace
     \ call cheat#cheat(<q-args>, <line1>, <line2>, <count>, 1, "<bang>")
 
@@ -73,7 +76,12 @@ if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
     vnoremap <script> <silent> <leader>KR
                 \ :call cheat#cheat("", -1, -1, 3, 1, '!')<CR>
 
-    " Toggle comments
+    " Buffer
+    nnoremap <script> <silent> <leader>KE
+                \ :call cheat#cheat("", -1, -1 , -1, 4, '!')<CR>
+    vnoremap <script> <silent> <leader>KE
+                \ :call cheat#cheat("", -1, -1, -1, 4, '!')<CR>
+     " Toggle comments
     nnoremap <script> <silent> <leader>KC :call cheat#navigate(0, 'C')<CR>
     vnoremap <script> <silent> <leader>KC :call cheat#navigate(0, 'C')<CR>
 

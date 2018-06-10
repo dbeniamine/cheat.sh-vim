@@ -64,6 +64,16 @@ if(!exists("g:CheatSheetShowCommentsByDefault"))
     let g:CheatSheetShowCommentsByDefault=1
 endif
 
+" Default query mode
+if(!exists("g:CheatSheetDefaultMode"))
+    let g:CheatSheetDefaultMode=0
+endif
+
+" Default query mode
+if(!exists("g:CheatSheetProviders"))
+    let g:CheatSheetProviders=['quickfix', 'syntastic']
+endif
+
 let s:history=[]
 let s:histPos=-1
 
@@ -255,7 +265,18 @@ function! s:initRequest()
     let request["isCheatSheet"]=0
     let request.appendpos=0
     let request.numLines=0
+    let request.mode=g:CheatSheetDefaultMode
     return request
+endfunction
+
+function s:getError()
+    for provider in g:CheatSheetProviders
+        let query=function('cheat#providers#'.provider.'#GetError')()
+        if(query != "")
+            return trim(substitute(query, ' ', '+', 'g'),'+')
+        endif
+    endfor
+    return ""
 endfunction
 
 " Handle a cheat query
@@ -267,12 +288,26 @@ endfunction
 "       mode        : the output mode : 0=> buffer, 1=> replace, 2=>pager, 3=> paste
 "       isplusquery   : should we do a Ft query
 function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
+    if(a:mode ==2 && match(execute('version'), 'NVIM') != -1)
+        call cheat#echo('Pager mode does not work with neovim'.
+                    \' use <leader>KB instead', 'e')
+        return
+    endif
     let request=s:initRequest()
-    if(a:query == "")
-        let query=substitute(s:get_visual_selection(a:froml,a:tol, a:range),
-                    \'^\s*', '', '')
+    if(a:mode == 4 )
+        let query=s:getError()
+        echo query
+        if(query == "")
+            call cheat#echo("No error dectected, have you saved your buffer ?", 'w')
+            return ""
+        endif
     else
-        let query=a:query
+        if(a:query == "")
+            let query=substitute(s:get_visual_selection(a:froml,a:tol, a:range),
+                        \'^\s*', '', '')
+        else
+            let query=a:query
+        endif
     endif
 
     if(a:isplusquery == '!')
@@ -293,7 +328,9 @@ function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
     endif
     " Reactivate history if required
     let s:isInHistory=0
-    let request.mode=a:mode
+    if(a:mode != 4)
+        let request.mode=a:mode
+    endif
     call s:handleRequest(request)
 endfunction
 
@@ -362,7 +399,6 @@ endfunction
 function! s:handleRequest(request)
     call s:saveRequest(a:request)
     let curl=s:getUrl(s:queryFromRequest(a:request))
-    echo curl
 
     if(a:request.mode == 2)
         execute ":silent !".curl.' | '.g:CheatPager

@@ -13,6 +13,7 @@ There is an asciinema showing how it works :
 
 + Browse existing cheat sheets from cheat.sh directly from vim
 + Get answers on any programming question directly on your vim with simple mappings
++ Send compilation / syntax error to cht.sh and get answers
 + Quick navigation through answers
 + Everything is configurable
 
@@ -26,8 +27,9 @@ The easiest way to use this plugin is to use one of the following mappings :
 + `<leader>KR` Replace your question by the answer
 + `<leader>KP` Past the answer below your question
 + `<leader>KC` Replay last query, toggling comments
++ `<leader>KE` Send first error to cht.sh
 
-The plugins also provides two main commands :
+The plugins also provides four main commands :
 
     :Cheat
     :CheatReplace
@@ -43,6 +45,42 @@ your question (`:CheatReplace`) or in a pager (`:CheatPager`).
 sheets or write your own [query](https://github.com/chubin/cheat.sh#search).
 + They also take a `bang` that make same transform the query into a plus query:
 for instance : `:Cheat! factory` is the same as `:Cheat &ft/factory+`.
+
+#### Errors
+
+Cheat.sh-vim can directly send the syntaxt and compilation errors / warning to
+cht.sh. To do so, hit `<leader>KE` or run `:CheatError`.
+
+By default, the answer will be displayed on the cheat buffer, to change this
+behavior :
+
+    let g:CheatSheetDefaultMode = x
+
+Where x is :
+
++ 0 : Cheat buffer (default)
++ 1 : Replace current line (sounds like a very bad idea)
++ 2 : Use the pager
++ 3 : Append answer below current line (sounds like a bad idea)
+
+##### Error providers
+
+Currently errors are search from the quickfix, then from syntastic errors.
+To change this order :
+
+    let  g:CheatSheetProviders = ['syntastic', 'quickfix']
+
+You can easily add an error provider in 5 steps :
+
+1. Copy the file `cheat.sh/autoload/cheat/providers/quickfix.vim` to
+`cheat.sh/autoload/cheat/providers/myprovider.vim`
+2. Adapt and rename the function (only change quickfix in the name), it must
+return the error string without special chars or an empty string if there are
+no errors / warning
+3. Add your provider name (filename) to the `CheatSheatProvider` list in
+`cheat.sh/autoload/cheat.vim`
+4. Test it
+5. Do a merge request on [gitlab](https://gitlab.com/dbeniamine/cheat.sh-vim/)
 
 #### Navigate
 
