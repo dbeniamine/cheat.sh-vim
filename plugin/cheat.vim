@@ -46,7 +46,9 @@ command! -nargs=1 CheatNavigateAnswers call cheat#navigate(<q-args>, 'A')
 command! -nargs=1 CheatSeeAlso call cheat#navigate(<q-args>, 'S')
 command! -nargs=1 CheatHistory call cheat#navigate(<q-args>, 'H')
 
-if(!exists("g:CheatDoNotReplaceKeywordPrg") || g:CheatDoNotReplaceKeywordPrg ==0)
+if((!exists("g:CheatDoNotReplaceKeywordPrg") ||
+            \ g:CheatDoNotReplaceKeywordPrg ==0) &&
+            \has("patch-7.4.1833"))
     set keywordprg=:CheatPager!
 endif
 
