@@ -76,7 +76,7 @@ You can easily add an error provider in 5 steps :
 return the error string without special chars or an empty string if there are
 no errors / warning
 3. Add your provider name (filename) to the `CheatSheatProvider` list in
-`cheat.sh/autoload/cheat.vim`
+`cheat.sh/autoload/cheat/providers.vim`
 4. Test it
 5. Do a merge request on [gitlab](https://gitlab.com/dbeniamine/cheat.sh-vim/)
 
