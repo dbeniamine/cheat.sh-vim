@@ -39,10 +39,11 @@ function! cheat#providers#GetError()
     for provider in g:CheatSheetProviders
         let query=function('cheat#providers#'.provider.'#GetError')()
         if(query != "")
-            return trim(substitute(substitute(
+            return substitute(substitute(substitute(substitute(
                         \ query, ' ', '+', 'g'),
                         \ '‘\|’', '', 'g'),
-                        \'+')
+                        \'^+*', '', ''),
+                        \'+*$', '', '')
         endif
     endfor
     return ""
