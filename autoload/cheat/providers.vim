@@ -46,7 +46,7 @@ function! cheat#providers#GetErrorFromList(errors)
     endfor
     if(error == "")
         " Default to first line of errors
-        let error=s:errors[0].text
+        let error=a:errors[0].text
     endif
     return error
 endfunction
