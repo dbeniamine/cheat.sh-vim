@@ -85,6 +85,17 @@ no errors / warning
 4. Test it
 5. Do a merge request on [gitlab](https://gitlab.com/dbeniamine/cheat.sh-vim/)
 
+##### Syntastic hooks
+
+Cheat.sh-vim uses syntastic hooks to retrieve the error list, if you also need
+to use synstastic hook, make sure that your function calls ours with the initial
+error list :
+
+    function SyntasticCheckHook(errors)
+        call cheat#providers#syntastic#Hook(a:errors)
+        " Do whatever you want to do
+    endfunction
+
 #### Navigate
 
 Once you have called on of these commands, you can navigate through questions,

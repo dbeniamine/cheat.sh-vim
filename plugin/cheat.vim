@@ -20,7 +20,7 @@ if exists("g:loaded_cheat_sh")
   finish
 endif
 
-let g:save_cpo = &cpo
+let save_cpo = &cpo
 set cpo&vim
 
 let g:loaded_cheat_sh = "v0.2"
@@ -58,7 +58,7 @@ if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
                 \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 0, '!')<CR>
     vnoremap <script> <silent> <leader>KB
                 \ :call cheat#cheat("", -1, -1, 2, 0, '!')<CR>
- 
+
     " Pager
     nnoremap <script> <silent> <leader>KK
                 \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 2, '!')<CR>
@@ -109,6 +109,12 @@ if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
     nnoremap <script> <silent> <leader>KSP :call cheat#navigate(-1,'S')<CR>
     vnoremap <script> <silent> <leader>KSP :call cheat#navigate(-1,'S')<CR>
 endif
+
+try
+    function SyntasticCheckHook(errors)
+        call cheat#providers#syntastic#Hook(a:errors)
+    endfunction
+endtry
 
 let cpo=save_cpo
 " vim:set et sw=4:
