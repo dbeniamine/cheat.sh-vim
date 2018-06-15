@@ -16,7 +16,7 @@
 " You should have received a copy of the GNU General Public License
 " along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-let g:save_cpo = &cpo
+let save_cpo = &cpo
 set cpo&vim
 
 " Vim command used to open new buffer

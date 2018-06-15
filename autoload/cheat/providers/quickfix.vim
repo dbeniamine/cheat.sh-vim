@@ -16,21 +16,12 @@
 " You should have received a copy of the GNU General Public License
 " along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-let g:save_cpo = &cpo
+let save_cpo = &cpo
 set cpo&vim
 
 function! cheat#providers#quickfix#GetError()
-    let line=getpos('.')[1]
-    try
-        cr
-    catch /^Vim\%((\a\+)\)\=:E42/
-        return ''
-    endtry
-    silent cclose
-    cwindow
-    let query=cheat#providers#GetErrorFromCurrentBuffer(line)
-    cclose
-    return query
+    return cheat#providers#GetErrorFromList(getqflist())
 endfunction
 
+let cpo=save_cpo
 " vim:set et sw=4:
