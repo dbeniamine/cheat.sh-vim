@@ -32,7 +32,7 @@ function! cheat#providers#GetErrorFromCurrentBuffer()
     endif
     return substitute(substitute(
                 \getline('.'), '^[^|]*|[^|]*|', '', ''),
-                \'\[.*\]$', '', '')
+                \'\[.*\]', '', 'g')
 endfunction
 
 function! cheat#providers#GetError()
