@@ -25,10 +25,10 @@ if(!exists("g:CheatSheetProviders"))
 endif
 
 " Returns the first error on the current buffer
-function! cheat#providers#GetErrorFromCurrentBuffer()
-    if( search('ERROR\c') == -1)
-        " No error search current line
-        call search('|'.getpos('.')[1].' col ')
+function! cheat#providers#GetErrorFromCurrentBuffer(line)
+    if( search('|'.a:line.' col ') == 0)
+        " Nothing on current line, search for errors
+        call search('ERROR\c')
     endif
     return substitute(substitute(
                 \getline('.'), '^[^|]*|[^|]*|', '', ''),
