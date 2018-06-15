@@ -20,6 +20,7 @@ let g:save_cpo = &cpo
 set cpo&vim
 
 function! cheat#providers#syntastic#GetError()
+    let line=getpos('.')[1]
     try
         Errors
     catch /^Vim\%((\a\+)\)\=:E492/
@@ -27,7 +28,7 @@ function! cheat#providers#syntastic#GetError()
     endtry
     silent lclose
     lopen
-    let query=cheat#providers#GetErrorFromCurrentBuffer()
+    let query=cheat#providers#GetErrorFromCurrentBuffer(line)
     lclose
     return query
 endfunction
