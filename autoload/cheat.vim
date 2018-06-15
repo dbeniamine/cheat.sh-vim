@@ -78,7 +78,7 @@ let s:static_filetype = {
 
 " Returns the url to query
 function! s:getUrl(query)
-    return g:CheatSheetUrlGetter." '".g:CheatSheetBaseUrl."/".a:query."'"
+    return g:CheatSheetUrlGetter.' "'.g:CheatSheetBaseUrl.'/'.a:query.'"'
 endfunction
 
 " Print nice messages
