@@ -77,8 +77,12 @@ let s:static_filetype = {
             \}
 
 " Returns the url to query
-function! s:getUrl(query)
-    return g:CheatSheetUrlGetter.' "'.g:CheatSheetBaseUrl.'/'.a:query.'"'
+function! s:getUrl(query, asList)
+    let url=g:CheatSheetBaseUrl.'/'.a:query
+    if(a:asList==0)
+        return g:CheatSheetUrlGetter." ".shellescape(url)
+    endif
+    return add(split(g:CheatSheetUrlGetter),url)
 endfunction
 
 " Print nice messages
@@ -115,7 +119,7 @@ function! cheat#completeargs(A, L, P)
         let url=':list'
         let cat=''
     endif
-    silent return substitute(system(s:getUrl(url)),
+    silent return substitute(system(s:getUrl(url, 0)),
                 \'\(\n\|^\)\(\S\)', '\1'.cat.'\2', 'g')
 endfunction
 
@@ -383,9 +387,9 @@ endfunction
 " Launch the request with jobs if available
 function! s:handleRequest(request)
     call s:saveRequest(a:request)
-    let curl=s:getUrl(s:queryFromRequest(a:request))
 
     if(a:request.mode == 2)
+        let curl=s:getUrl(s:queryFromRequest(a:request), 0)
         execute ":silent !".curl.' | '.g:CheatPager
         redraw!
         return
@@ -413,9 +417,12 @@ function! s:handleRequest(request)
         if(exists('s:job'))
             call job_stop(s:job)
         endif
-        silent let s:job = job_start(curl, {"callback": "cheat#handleRequestOutput"})
+        let curl=s:getUrl(s:queryFromRequest(a:request), 1)
+        let s:job = job_start(curl,
+                    \ {"callback": "cheat#handleRequestOutput"})
     else
         " Simulate asynchronous behavior
+        let curl=s:getUrl(s:queryFromRequest(a:request), 0)
         silent for line in systemlist(curl)
             call cheat#handleRequestOutput(0, line)
         endfor
