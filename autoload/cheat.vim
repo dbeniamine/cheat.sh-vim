@@ -412,6 +412,7 @@ function! s:handleRequest(request)
             let ft=a:request.ft
         endif
         execute ': set ft='.ft
+        execute s:oldbuf . 'wincmd w'
         redraw!
     endif
 
