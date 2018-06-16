@@ -333,19 +333,20 @@ function! s:displayRequestMessage(request)
                     \g:CheatSheetBaseUrl
         let more=''
         if(a:request.s!=0)
-            let more.="\n\trelated number: ".a:request.s
+            let more.=", related number: ".a:request.s
         endif
         if(a:request.a!=0)
-            let more.="\n\tanswer number: ".a:request.a
+            let more.=", answer number: ".a:request.a
         endif
         if(a:request.q!=0)
-            let more.="\n\tquestion number: ".a:request.q
+            let more.=", question number: ".a:request.q
         endif
         if(more != '')
-            let message.="\nRequesting".more
+            let message.=" Requesting (".substitute(more,
+                        \'^, ', '', '').")"
         endif
     endif
-    call cheat#echo(message. "\nthis may take some time", 'S')
+    call cheat#echo(message. " this may take some time", 'S')
 endfunction
 
 function! cheat#createOrSwitchToBuffer()
@@ -427,8 +428,8 @@ function! s:handleRequest(request)
         silent for line in systemlist(curl)
             call cheat#handleRequestOutput(0, line)
         endfor
+        redraw!
     endif
-    redraw!
 endfunction
 
 " Output the answer line by line
