@@ -56,6 +56,8 @@ if((!exists("g:CheatDoNotReplaceKeywordPrg") ||
 endif
 
 if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
+    nnoremap <script> <silent> <leader>C :call cheat#toggleComments()<CR>
+
     " Buffer
     nnoremap <script> <silent> <leader>KB
                 \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 0, '!')<CR>

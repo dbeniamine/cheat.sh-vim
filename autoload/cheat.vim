@@ -333,19 +333,20 @@ function! s:displayRequestMessage(request)
                     \g:CheatSheetBaseUrl
         let more=''
         if(a:request.s!=0)
-            let more.="\n\trelated number: ".a:request.s
+            let more.=", related number: ".a:request.s
         endif
         if(a:request.a!=0)
-            let more.="\n\tanswer number: ".a:request.a
+            let more.=", answer number: ".a:request.a
         endif
         if(a:request.q!=0)
-            let more.="\n\tquestion number: ".a:request.q
+            let more.=", question number: ".a:request.q
         endif
         if(more != '')
-            let message.="\nRequesting".more
+            let message.=" Requesting (".substitute(more,
+                        \'^, ', '', '').")"
         endif
     endif
-    call cheat#echo(message. "\nthis may take some time", 'S')
+    call cheat#echo(message. " this may take some time", 'S')
 endfunction
 
 function! cheat#createOrSwitchToBuffer()
@@ -411,6 +412,8 @@ function! s:handleRequest(request)
             let ft=a:request.ft
         endif
         execute ': set ft='.ft
+        execute s:oldbuf . 'wincmd w'
+        redraw!
     endif
 
     call s:displayRequestMessage(a:request)
@@ -427,8 +430,8 @@ function! s:handleRequest(request)
         silent for line in systemlist(curl)
             call cheat#handleRequestOutput(0, line)
         endfor
+        redraw!
     endif
-    redraw!
 endfunction
 
 " Output the answer line by line
@@ -468,6 +471,13 @@ function! s:get_visual_selection(froml, tol, range)
     let lines[-1] = lines[-1][: column_end - (&selection == 'inclusive' ? 1 : 2)]
     let lines[0] = lines[0][column_start - 1:]
     return join(lines, " ")
+endfunction
+
+function! cheat#toggleComments()
+    let g:CheatSheetShowCommentsByDefault=(
+                \g:CheatSheetShowCommentsByDefault+1)%2
+    call cheat#echo('Setting comments to : '.g:CheatSheetShowCommentsByDefault,
+                \ 'S')
 endfunction
 
 let cpo=save_cpo

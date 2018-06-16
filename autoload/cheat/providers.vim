@@ -54,10 +54,10 @@ endfunction
 function! s:PrepareQuery(text)
     " Remove ending [blabla], replace space by plus, sanitize, trim +
     return substitute(substitute(substitute(substitute(a:text,
-                        \'\[.*\]$', '', ''),
-                        \' ', '+', 'g'),
+                        \'\[[^\]]*\]$\|([^)]*)', '', 'g'),
+                        \'\s\s*', '+', 'g'),
                         \ "‘\\|’\\|\\[\\|\\]\\|\"\\|'\\|(\\|)", '', 'g'),
-                        \'^+*\(.*\)+*$', '\1', '')
+                        \'^+*\|+*$', '', 'g')
 endfunction
 
 function! cheat#providers#GetError()
@@ -71,7 +71,7 @@ function! cheat#providers#GetError()
 endfunction
 
 function! cheat#providers#TestPrepareQuery()
-    let text="'bla' bli b‘lo’ [blu] \"plop\""
+    let text="'bla' bli (remove) b‘lo’ [blu] \"plop\" (remove) [also to remove]"
     echo text
     echo s:PrepareQuery(text)
 endfunction

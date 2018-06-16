@@ -31,6 +31,7 @@ on neovim, because they killed interactive commands with `:!`)
 + `<leader>KP` Past the answer below your question
 + `<leader>KC` Replay last query, toggling comments
 + `<leader>KE` Send first error to cht.sh
++ `<leader>C` Toggle showing comments by default see [configuration](#configuration)
 
 The plugins also provides four main commands :
 
