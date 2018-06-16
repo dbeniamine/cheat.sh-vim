@@ -425,7 +425,6 @@ function! s:handleRequest(request)
         let s:job = job_start(curl,
                     \ {"callback": "cheat#handleRequestOutput"})
     else
-        call s:displayRequestMessage(a:request)
         " Simulate asynchronous behavior
         let curl=s:getUrl(s:queryFromRequest(a:request), 0)
         silent for line in systemlist(curl)
