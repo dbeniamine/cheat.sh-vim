@@ -470,5 +470,12 @@ function! s:get_visual_selection(froml, tol, range)
     return join(lines, " ")
 endfunction
 
+function! cheat#toggleComments()
+    let g:CheatSheetShowCommentsByDefault=(
+                \g:CheatSheetShowCommentsByDefault+1)%2
+    call cheat#echo('Setting comments to : '.g:CheatSheetShowCommentsByDefault,
+                \ 'S')
+endfunction
+
 let cpo=save_cpo
 " vim:set et sw=4:
