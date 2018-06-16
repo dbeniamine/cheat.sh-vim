@@ -387,6 +387,7 @@ endfunction
 " Launch the request with jobs if available
 function! s:handleRequest(request)
     call s:saveRequest(a:request)
+    let s:oldbuf=winnr()
 
     if(a:request.mode == 2)
         let curl=s:getUrl(s:queryFromRequest(a:request), 0)
@@ -444,6 +445,7 @@ function! cheat#handleRequestOutput(channel, msg)
     call append(request.appendpos+request.numLines, a:msg)
     let request.numLines+=1
     execute ':'.request.appendpos
+    execute s:oldbuf . 'wincmd w'
 endfunction
 
 " Returns the text that is currently selected
