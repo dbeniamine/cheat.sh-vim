@@ -430,7 +430,8 @@ function! s:handleRequest(request)
         endif
         let curl=s:getUrl(s:queryFromRequest(a:request), 1)
         let s:job = job_start(curl,
-                    \ {"out_cb": "cheat#handleRequestOutput"})
+                    \ {"callback": "cheat#handleRequestOutput",
+                    \ "close_cb": "cheat#endChannel"})
     else
         " Simulate asynchronous behavior
         let curl=s:getUrl(s:queryFromRequest(a:request), 0)
@@ -441,8 +442,20 @@ function! s:handleRequest(request)
     endif
 endfunction
 
+function! cheat#endChannel(channel)
+    let request=s:lastRequest()
+    if(request.mode == 0)
+        call cheat#createOrSwitchToBuffer()
+        normal Gdd
+        execute s:oldbuf . 'wincmd w'
+    endif
+endfunction
+
 " Output the answer line by line
 function! cheat#handleRequestOutput(channel, msg)
+    if(a:msg == "DETACH")
+        return
+    endif
     " Put vim in foreground if required
     if(has('jobs'))
         call foreground()
