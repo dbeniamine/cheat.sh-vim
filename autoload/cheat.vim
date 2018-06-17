@@ -69,6 +69,13 @@ if(!exists("g:CheatSheetDefaultMode"))
     let g:CheatSheetDefaultMode=0
 endif
 
+if(!exists("s:isNeovim"))
+    redir => ver
+    silent version
+    redir END
+    let s:isNeovim = (match(ver, 'NVIM')!=-1)
+endif
+
 let s:history=[]
 let s:histPos=-1
 
@@ -277,7 +284,7 @@ endfunction
 "       mode        : the output mode : 0=> buffer, 1=> replace, 2=>pager, 3=> paste
 "       isplusquery   : should we do a Ft query
 function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
-    if(a:mode ==2 && match(execute('version'), 'NVIM') != -1)
+    if(a:mode ==2 && s:isNeovim == 1)
         call cheat#echo('Pager mode does not work with neovim'.
                     \' use <leader>KB instead', 'e')
         return
