@@ -430,7 +430,7 @@ function! s:handleRequest(request)
         endif
         let curl=s:getUrl(s:queryFromRequest(a:request), 1)
         let s:job = job_start(curl,
-                    \ {"callback": "cheat#handleRequestOutput"})
+                    \ {"out_cb": "cheat#handleRequestOutput"})
     else
         " Simulate asynchronous behavior
         let curl=s:getUrl(s:queryFromRequest(a:request), 0)
