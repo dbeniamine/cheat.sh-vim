@@ -189,11 +189,14 @@ the default values that will be used if you do not change them) :
     let g:CheatSheetUrlGetter='curl --silent'
 
     " cheat sheet base url
-    let g:CheatSheetBaseUrl='cheat.sh'
+    let g:CheatSheetBaseUrl='https://cht.sh'
 
     " cheat sheet settings do not include style settings neiter comments, 
     " see other options below
     let g:CheatSheetUrlSettings='q'
+
+    " cheat sheet pager
+    let g:CheatPager='less -R'
 
     " pygmentize theme used for pager output, see :CheatPager :styles-demo
     let g:CheatSheetPagerStyle=rrt
@@ -202,14 +205,18 @@ the default values that will be used if you do not change them) :
     " (setting this to 0 means giving ?Q to the server)
     let g:CheatSheetShowCommentsByDefault=1
 
-    " cheat sheet pager command
-    let g:CheatPager='less -R'
-
     " cheat sheet buffer name
     let g:CheatSheetBufferName="_cheat"
 
     " Default selection in normal mode (line for whole line, word for word under cursor)
     let g:CheatSheetDefaultSelection="line"
+
+    " Default query mode
+    " 0 => buffer
+    " 1 => replace (do not use or you might loose some lines of code)
+    " 2 => pager
+    " 3 => paste
+    let g:CheatSheetDefaultMode=0
 
 You can also disable the mappings (see plugin/cheat.vim to redo the mappings
 manually)
