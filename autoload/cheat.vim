@@ -34,11 +34,6 @@ if(!exists("g:CheatSheetUrlGetter"))
     let g:CheatSheetUrlGetter='curl --silent'
 endif
 
-" cheat sheet base url
-if(!exists("g:CheatSheetBaseUrl"))
-    let g:CheatSheetBaseUrl='https://cht.sh'
-endif
-
 " cheat sheet settings
 if(!exists("g:CheatSheetUrlSettings"))
     let g:CheatSheetUrlSettings='q'
@@ -64,11 +59,6 @@ if(!exists("g:CheatSheetShowCommentsByDefault"))
     let g:CheatSheetShowCommentsByDefault=1
 endif
 
-" Default query mode
-if(!exists("g:CheatSheetDefaultMode"))
-    let g:CheatSheetDefaultMode=0
-endif
-
 if(!exists("s:isNeovim"))
     redir => ver
     silent version
@@ -86,10 +76,11 @@ let s:static_filetype = {
 " Returns the url to query
 function! s:getUrl(query, asList)
     let url=g:CheatSheetBaseUrl.'/'.a:query
+    let getter=g:CheatSheetUrlGetter." ".cheat#session#urloptions()
     if(a:asList==0)
-        return g:CheatSheetUrlGetter." ".shellescape(url)
+        return getter." ".shellescape(url)
     endif
-    return add(split(g:CheatSheetUrlGetter),url)
+    return add(split(getter),url)
 endfunction
 
 " Print nice messages
@@ -141,8 +132,8 @@ function! cheat#navigate(delta, type)
         return
     endif
 
-    if(empty(s:lastRequest()))
-        call cheat#echo('You must first 0,0call :Cheat or :CheatReplace', 'e')
+    if(s:histPos <0 || empty(s:lastRequest()))
+        call cheat#echo('You must first call :Cheat or :CheatReplace', 'e')
         return
     endif
 
@@ -292,7 +283,6 @@ function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
     let request=s:initRequest()
     if(a:mode == 4 )
         let query=cheat#providers#GetError()
-        echo query
         if(query == "")
             call cheat#echo("No error dectected, have you saved your buffer ?", 'w')
             return ""

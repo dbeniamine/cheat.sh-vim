@@ -25,6 +25,16 @@ set cpo&vim
 
 let g:loaded_cheat_sh = "v0.2"
 
+" Default query mode
+if(!exists("g:CheatSheetDefaultMode"))
+    let g:CheatSheetDefaultMode=0
+endif
+
+" cheat sheet base url
+if(!exists("g:CheatSheetBaseUrl"))
+    let g:CheatSheetBaseUrl='https://cht.sh'
+endif
+
 " command definition
 command! -nargs=? -bang -count -complete=custom,cheat#completeargs Cheat
     \ call cheat#cheat(<q-args>, <line1>, <line2>, <count>, 0, "<bang>")
@@ -45,6 +55,7 @@ command! -nargs=1 CheatNavigateQuestions call cheat#navigate(<q-args>, 'Q')
 command! -nargs=1 CheatNavigateAnswers call cheat#navigate(<q-args>, 'A')
 command! -nargs=1 CheatSeeAlso call cheat#navigate(<q-args>, 'S')
 command! -nargs=1 CheatHistory call cheat#navigate(<q-args>, 'H')
+command! -nargs=? -bang CheatId call cheat#session#id(<q-args>, "<bang>")
 
 if((!exists("g:CheatDoNotReplaceKeywordPrg") ||
             \ g:CheatDoNotReplaceKeywordPrg ==0))
@@ -69,6 +80,9 @@ if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
                 \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 2, '!')<CR>
     vnoremap <script> <silent> <leader>KK
                 \ :call cheat#cheat("", -1, -1, 2, 2, '!')<CR>
+
+    vnoremap <script> <silent> <leader>KL  :call cheat#session#last()<CR>
+    nnoremap <script> <silent> <leader>KL  :call cheat#session#last()<CR>
 
 
     " Replace

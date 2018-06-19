@@ -12,6 +12,7 @@ There is an asciinema showing how it works :
 + Browse existing cheat sheets from cheat.sh directly from vim
 + Get answers on any programming question directly on your vim with simple mappings
 + Send compilation / syntax error to cht.sh and get answers
++ Manage session id to replay last query from other cht.sh clients
 + Quick navigation through answers
 + Everything is configurable
 
@@ -30,6 +31,7 @@ on neovim, because they killed interactive commands with `:!`)
 + `<leader>KC` Replay last query, toggling comments
 + `<leader>KE` Send first error to cht.sh
 + `<leader>C` Toggle showing comments by default see [configuration](#configuration)
++ `<leader>KL` Replay last query
 
 The plugins also provides four main commands :
 
@@ -47,6 +49,14 @@ your question (`:CheatReplace`) or in a pager (`:CheatPager`).
 sheets or write your own [query](https://github.com/chubin/cheat.sh#search).
 + They also take a `bang` that make same transform the query into a plus query:
 for instance : `:Cheat! factory` is the same as `:Cheat &ft/factory+`.
+
+#### Ids
+
+It also provides the `:CheatId` command to manage ids :
+
+    :Cheat[!] [newid]         " Generates a new id or set id to newid
+                              " Id will not be overwritten if ! is not given
+    :Cheat remove             " Completely removes the id
 
 #### Errors
 
@@ -186,6 +196,9 @@ the default values that will be used if you do not change them) :
     " Program used to retrieve cheat sheet with its arguments
     let g:CheatSheetUrlGetter='curl --silent'
 
+    " Flag to add cookie file to the query
+    let g:CheatSheetUrlGetterIdFlag='-b'
+
     " cheat sheet base url
     let g:CheatSheetBaseUrl='https://cht.sh'
 
@@ -215,6 +228,11 @@ the default values that will be used if you do not change them) :
     " 2 => pager
     " 3 => paste
     let g:CheatSheetDefaultMode=0
+
+     Path to cheat sheet cookie
+    let g:CheatSheetIdPath=expand('~/.cht.sh/id')
+
+
 
 You can also disable the mappings (see plugin/cheat.vim to redo the mappings
 manually)
