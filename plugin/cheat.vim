@@ -93,15 +93,20 @@ if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
 
     " Paste
     nnoremap <script> <silent> <leader>KP
+                \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 4, '!')<CR>
+    vnoremap <script> <silent> <leader>KP
+                \ :call cheat#cheat("", -1, -1, 4, 1, '!')<CR>
+
+    nnoremap <script> <silent> <leader>Kp
                 \ :call cheat#cheat("", getcurpos()[1], getcurpos()[1], 0, 3, '!')<CR>
-    vnoremap <script> <silent> <leader>KR
+    vnoremap <script> <silent> <leader>Kp
                 \ :call cheat#cheat("", -1, -1, 3, 1, '!')<CR>
 
     " Buffer
     nnoremap <script> <silent> <leader>KE
-                \ :call cheat#cheat("", -1, -1 , -1, 4, '!')<CR>
+                \ :call cheat#cheat("", -1, -1 , -1, 5, '!')<CR>
     vnoremap <script> <silent> <leader>KE
-                \ :call cheat#cheat("", -1, -1, -1, 4, '!')<CR>
+                \ :call cheat#cheat("", -1, -1, -1, 5, '!')<CR>
      " Toggle comments
     nnoremap <script> <silent> <leader>KC :call cheat#navigate(0, 'C')<CR>
     vnoremap <script> <silent> <leader>KC :call cheat#navigate(0, 'C')<CR>
