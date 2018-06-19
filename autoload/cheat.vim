@@ -181,7 +181,7 @@ function! cheat#navigate(delta, type)
     endif
 
     " Remove previously replaced lines
-    if(request.mode == 1 || request.mode == 3)
+    if(request.mode == 1 || request.mode == 3 || request.mode == 4)
         let pos=request.appendpos+1
         execute ':'.pos
         execute 'd'.request.numLines
@@ -272,7 +272,8 @@ endfunction
 "       froml       : the first line (if no queries)
 "       tol         : the last line (if no queries)
 "       range       : the number of selected words in visual mode
-"       mode        : the output mode : 0=> buffer, 1=> replace, 2=>pager, 3=> paste
+"       mode        : the output mode : 0=> buffer, 1=> replace, 2=>pager,
+"                       3=> paste after, 4 => paste before, 5 => error
 "       isplusquery   : should we do a Ft query
 function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
     if(a:mode ==2 && s:isNeovim == 1)
@@ -281,7 +282,7 @@ function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
         return
     endif
     let request=s:initRequest()
-    if(a:mode == 4 )
+    if(a:mode == 5 )
         let query=cheat#providers#GetError()
         if(query == "")
             call cheat#echo("No error dectected, have you saved your buffer ?", 'w')
@@ -314,7 +315,7 @@ function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
     endif
     " Reactivate history if required
     let s:isInHistory=0
-    if(a:mode != 4)
+    if(a:mode != 5)
         let request.mode=a:mode
     endif
     call s:handleRequest(request)
@@ -398,6 +399,8 @@ function! s:handleRequest(request)
         let a:request.appendpos=getcurpos()[1]-1
     elseif(a:request.mode == 3)
         let a:request.appendpos=getcurpos()[1]
+    elseif(a:request.mode == 4)
+        let a:request.appendpos=getcurpos()[1]-1
     elseif(a:request.mode == 0)
         " Prepare buffer
         call cheat#createOrSwitchToBuffer()
