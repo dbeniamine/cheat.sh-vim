@@ -212,7 +212,8 @@ are the default values that will be used if you do not change them) :
     " 0 => buffer
     " 1 => replace (do not use or you might loose some lines of code)
     " 2 => pager
-    " 3 => paste
+    " 3 => paste after query
+    " 4 => paste before query
     let g:CheatSheetDefaultMode=0
 
      Path to cheat sheet cookie
