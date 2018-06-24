@@ -13,6 +13,9 @@ This is a highly configurable vim plugin to browse cheat sheet from
 There is a demo of most important features of the cheat.sh Vim plugin (5 Min),
 courtesy of @chubin.
 
+** Note :** In the video, @chubin uses the `space` key as a `<leader>`, by
+default vim `<leader>` is `backslash`.
+
 <p align="center">
   <img src='https://cheat.sh/files/vim-demo.gif'/>
 </p>
