@@ -5,9 +5,27 @@
 This is a highly configurable vim plugin to browse cheat sheet from
 [cheat.sh](https://github.com/chubin/cheat.sh) directly from vim.
 
-There is an asciinema showing how it works :
+## Demo
+
+<!-- There is an asciinema showing how it works :
 
 [![asciicast](https://asciinema.org/a/c6QRIhus7np2OOQzmQ2RNXzRZ.png)](https://asciinema.org/a/c6QRIhus7np2OOQzmQ2RNXzRZ)
+-->
+
+There is a demo of most important features of the cheat.sh Vim plugin (5 Min),
+courtesy of @chubin.
+
+<p align="center">
+  <img src='https://cheat.sh/files/vim-demo.gif'/>
+</p>
+
+Or, if you want to scroll and/or pause, the same on YouTube:
+
+<p align="center">
+  <a href="http://www.youtube.com/watch?feature=player_embedded&v=xyf6MJ0y-z8
+  " target="_blank"><img src="http://img.youtube.com/vi/xyf6MJ0y-z8/0.jpg" 
+  alt="cheat.sh-vim: Using cheat.sh from vim" width="700" height="490" border="10" /></a>
+</p>
 
 ## Features
 
