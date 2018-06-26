@@ -11,7 +11,7 @@ This is a highly configurable vim plugin to browse cheat sheet from
 -->
 
 There is a demo of most important features of the cheat.sh Vim plugin (5 Min),
-courtesy of @chubin.
+courtesy of @chubin, CC-SA.
 
 ** Note :** In the video, @chubin uses the `space` key as a `<leader>`, by
 default vim `<leader>` is `backslash`.
@@ -269,3 +269,5 @@ To disable the replacement of man by cheat sheets :
 
 This plugin is distributed under GPL Licence v3.0, see
 https://www.gnu.org/licenses/gpl.txt
+
+The demo are creative Commons, CC-SA Igor Chubin.
