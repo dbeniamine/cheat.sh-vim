@@ -313,11 +313,24 @@ function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
             let request=s:requestFromQuery(query, request)
         endif
     endif
+
     " Reactivate history if required
     let s:isInHistory=0
     if(a:mode != 5)
         let request.mode=a:mode
     endif
+
+    " Set append pos / remove query if required
+    if(request.mode == 1)
+        call cheat#echo('removing lines', 'e')
+        normal dd
+        let request.appendpos=getcurpos()[1]-1
+    elseif(request.mode == 3)
+        let request.appendpos=getcurpos()[1]
+    elseif(request.mode == 4)
+        let request.appendpos=getcurpos()[1]-1
+    endif
+
     call s:handleRequest(request)
 endfunction
 
@@ -389,18 +402,11 @@ function! s:handleRequest(request)
     let s:oldbuf=winnr()
 
     if(a:request.mode == 2)
+        " Pager
         let curl=s:getUrl(s:queryFromRequest(a:request), 0)
         execute ":silent !".curl.' | '.g:CheatPager
         redraw!
         return
-    elseif(a:request.mode == 1)
-        call cheat#echo('removing lines', 'e')
-        normal dd
-        let a:request.appendpos=getcurpos()[1]-1
-    elseif(a:request.mode == 3)
-        let a:request.appendpos=getcurpos()[1]
-    elseif(a:request.mode == 4)
-        let a:request.appendpos=getcurpos()[1]-1
     elseif(a:request.mode == 0)
         " Prepare buffer
         call cheat#createOrSwitchToBuffer()
@@ -417,51 +423,48 @@ function! s:handleRequest(request)
     endif
 
     call s:displayRequestMessage(a:request)
-    if(has('job'))
-        if(exists('s:job'))
-            call job_stop(s:job)
-        endif
-        let curl=s:getUrl(s:queryFromRequest(a:request), 1)
+    let s:lines = []
+    let has_job=!has('job')
+    let curl=s:getUrl(s:queryFromRequest(a:request), has_job)
+    if(has_job)
+        " Asynchronous curl
         let s:job = job_start(curl,
                     \ {"callback": "cheat#handleRequestOutput",
-                    \ "close_cb": "cheat#endChannel"})
+                    \ "close_cb": "cheat#printAnswer"})
     else
-        " Simulate asynchronous behavior
-        let curl=s:getUrl(s:queryFromRequest(a:request), 0)
-        silent for line in systemlist(curl)
-            call cheat#handleRequestOutput(0, line)
-        endfor
+        " Synchronous curl
+        let s:lines=systemlist(curl)
+        call cheat#printAnswer(0)
         redraw!
     endif
 endfunction
 
-function! cheat#endChannel(channel)
+function! cheat#printAnswer(channel)
     let request=s:lastRequest()
     if(request.mode == 0)
         call cheat#createOrSwitchToBuffer()
-        normal Gdd
-        execute s:oldbuf . 'wincmd w'
     endif
+    call append(request.appendpos, s:lines)
+    let request.numLines=len(s:lines)
+    execute ':'.request.appendpos
+    if(request.mode == 0)
+        normal Gddgg
+    endif
+    execute s:oldbuf . 'wincmd w'
+    " Clean stuff
+    if(exists('s:job'))
+        call job_stop(s:job)
+        unlet s:job
+    endif
+    unlet s:lines
 endfunction
 
-" Output the answer line by line
+" Read answer line by line
 function! cheat#handleRequestOutput(channel, msg)
     if(a:msg == "DETACH")
         return
     endif
-    " Put vim in foreground if required
-    if(has('jobs'))
-        call foreground()
-    endif
-    let request=s:lastRequest()
-    " Retrieve lines
-    if(request.mode == 0)
-        call cheat#createOrSwitchToBuffer()
-    endif
-    call append(request.appendpos+request.numLines, a:msg)
-    let request.numLines+=1
-    execute ':'.request.appendpos
-    execute s:oldbuf . 'wincmd w'
+    call add(s:lines, a:msg)
 endfunction
 
 " Returns the text that is currently selected
