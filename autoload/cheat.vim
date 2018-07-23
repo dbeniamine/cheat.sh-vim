@@ -424,7 +424,7 @@ function! s:handleRequest(request)
 
     call s:displayRequestMessage(a:request)
     let s:lines = []
-    let has_job=!has('job')
+    let has_job=has('job')
     let curl=s:getUrl(s:queryFromRequest(a:request), has_job)
     if(has_job)
         " Asynchronous curl
