@@ -188,20 +188,18 @@ function! cheat#navigate(delta, type)
     call s:handleRequest(request)
 endfunction
 
-" Preprends ft and make sure that the query has a '+'
-function! s:preparePlusQuery(query)
-    let query='vim:'.&ft.'/'.substitute(a:query, ' ', '+', 'g')
-    " There must be a + in the query
-    if(match(query, '+') == -1)
-        let query=query.'+'
-    endif
-    return query
-endfunction
-
 " Completes request to be a high level request corresponding to the given
 " query
 function! s:requestFromQuery(query, request)
     let opts=split(a:query, '/')
+    if(len(opts) >= 2)
+        let a:request.ft=opts[0]
+        let a:request.query=opts[1]
+    else
+        let a:request.ft=g:CheatSheetFt
+        let a:request.query=opts[0]
+        let a:request.useFt = 0
+    endif
     if(len(opts) >=3)
         let a:request.q=opts[2]
     else
@@ -219,9 +217,11 @@ function! s:requestFromQuery(query, request)
     else
         let a:request.s=0
     endif
-    let a:request.ft=opts[0]
-    let a:request.query='vim:'.opts[0]."/".opts[1]
-    if(match(a:query,'+')==-1)
+    if(match(a:query,'+')!=-1)
+        let a:request.isCheatSheet=0
+        let a:request.ft=&ft
+        let a:request.useFt = 1
+    else
         let a:request.isCheatSheet=1
     endif
     return a:request
@@ -229,9 +229,20 @@ endfunction
 
 " Transforms a high level request into a query ready to be processed by cht.sh
 function! s:queryFromRequest(request)
-    let query=a:request.query
-    if(a:request.isCheatSheet ==0)
+    if(a:request.useFt == 1)
+        let query='vim:'.a:request.ft.'/'
+    else
+        let query=''
+    endif
+    if(a:request.isCheatSheet == 0)
+        let query.=substitute(a:request.query, ' ', '+', 'g')
+        " There must be a + in the query
+        if(match(query, '+') == -1)
+            let query.='+'
+        endif
         let query.='/'.a:request.q.'/'.a:request.a.','.a:request.s
+    else
+        let query.=a:request.query
     endif
     let query.='?'
     let query.=g:CheatSheetUrlSettings
@@ -256,10 +267,11 @@ function! s:initRequest()
     let request.s=0
     let request.comments=g:CheatSheetShowCommentsByDefault
     let request.ft=&ft
-    let request["isCheatSheet"]=0
+    let request.isCheatSheet=0
     let request.appendpos=0
     let request.numLines=0
     let request.mode=g:CheatSheetDefaultMode
+    let request.useFt=1
     return request
 endfunction
 
@@ -296,19 +308,9 @@ function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
 
     if(a:isplusquery == '!')
         " No explicit query, prepare query from selection
-        let request.query=s:preparePlusQuery(query)
+        let request.query=query
     else
-        " simple query
-        let ft=substitute(query, '^/\?\([^/]*\)/.*$', '\1', '')
-        if(ft == query)
-            " simple query
-            let request.ft=g:CheatSheetFt
-            let request["isCheatSheet"]=1
-            let request.query=query
-        else
-            " arbitrary query
-            let request=s:requestFromQuery(query, request)
-        endif
+        let request=s:requestFromQuery(query, request)
     endif
 
     " Reactivate history if required
