@@ -69,9 +69,6 @@ endif
 let s:history=[]
 let s:histPos=-1
 
-let s:static_filetype = {
-            \'c++': 'cpp'
-            \}
 
 " Returns the url to query
 function! s:getUrl(query, asList)
@@ -193,7 +190,7 @@ endfunction
 
 " Preprends ft and make sure that the query has a '+'
 function! s:preparePlusQuery(query)
-    let query=&ft.'/'.substitute(a:query, ' ', '+', 'g')
+    let query='vim:'.&ft.'/'.substitute(a:query, ' ', '+', 'g')
     " There must be a + in the query
     if(match(query, '+') == -1)
         let query=query.'+'
@@ -223,7 +220,7 @@ function! s:requestFromQuery(query, request)
         let a:request.s=0
     endif
     let a:request.ft=opts[0]
-    let a:request.query=opts[0]."/".opts[1]
+    let a:request.query='vim:'.opts[0]."/".opts[1]
     if(match(a:query,'+')==-1)
         let a:request.isCheatSheet=1
     endif
@@ -400,10 +397,11 @@ endfunction
 function! s:handleRequest(request)
     call s:saveRequest(a:request)
     let s:oldbuf=winnr()
+    let query=s:queryFromRequest(a:request)
 
     if(a:request.mode == 2)
         " Pager
-        let curl=s:getUrl(s:queryFromRequest(a:request), 0)
+        let curl=s:getUrl(query, 0)
         execute ":silent !".curl.' | '.g:CheatPager
         redraw!
         return
@@ -412,11 +410,7 @@ function! s:handleRequest(request)
         call cheat#createOrSwitchToBuffer()
         execute 'normal ggdG'
         " Update ft
-        if(has_key(s:static_filetype,a:request.ft))
-            let ft=s:static_filetype[a:request.ft]
-        else
-            let ft=a:request.ft
-        endif
+        let ft=a:request.ft
         execute ': set ft='.ft
         execute s:oldbuf . 'wincmd w'
         redraw!
@@ -425,7 +419,7 @@ function! s:handleRequest(request)
     call s:displayRequestMessage(a:request)
     let s:lines = []
     let has_job=has('job')
-    let curl=s:getUrl(s:queryFromRequest(a:request), has_job)
+    let curl=s:getUrl(query, has_job)
     if(has_job)
         " Asynchronous curl
         let s:job = job_start(curl,
