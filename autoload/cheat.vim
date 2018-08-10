@@ -188,93 +188,6 @@ function! cheat#navigate(delta, type)
     call s:handleRequest(request)
 endfunction
 
-" Completes request to be a high level request corresponding to the given
-" query
-function! s:requestFromQuery(query, request)
-    let opts=split(a:query, '/')
-    if(len(opts) >= 2)
-        let a:request.ft=opts[0]
-        let a:request.query=opts[1]
-    else
-        let a:request.ft=g:CheatSheetFt
-        let a:request.query=opts[0]
-        let a:request.useFt = 0
-    endif
-    if(len(opts) >=3)
-        let a:request.q=opts[2]
-    else
-        let a:request.q=0
-    endif
-    if(len(opts) >=4)
-        " Remove see related if present
-        let a:request.a=substitute(opts[3], '\(.*\),\+.*$', '\1', '')
-    else
-        let a:request.a=0
-    endif
-    " Remove see related uses , not /
-    if(match(a:query, ',\d\+$')!=-1)
-        let a:request.s=substitute(a:query, '^.*,\(\d\+\)$', '\1', '')
-    else
-        let a:request.s=0
-    endif
-    if(match(a:query,'+')!=-1)
-        let a:request.isCheatSheet=0
-        let a:request.ft=&ft
-        let a:request.useFt = 1
-    else
-        let a:request.isCheatSheet=1
-    endif
-    return a:request
-endfunction
-
-" Transforms a high level request into a query ready to be processed by cht.sh
-function! s:queryFromRequest(request)
-    if(a:request.useFt == 1)
-        let query='vim:'.a:request.ft.'/'
-    else
-        let query=''
-    endif
-    if(a:request.isCheatSheet == 0)
-        let query.=substitute(a:request.query, ' ', '+', 'g')
-        " There must be a + in the query
-        if(match(query, '+') == -1)
-            let query.='+'
-        endif
-        let query.='/'.a:request.q.'/'.a:request.a.','.a:request.s
-    else
-        let query.=a:request.query
-    endif
-    let query.='?'
-    let query.=g:CheatSheetUrlSettings
-    " Color pager requests
-    if(a:request.mode!=2)
-        let query.='T'
-    endif
-    if(a:request.comments==0)
-        let query.='Q'
-    endif
-    if(exists("g:CheatSheetPagerStyle") && a:request.mode==2)
-        let query.="&style=".g:CheatSheetPagerStyle
-    endif
-    return query
-endfunction
-
-" Prepare an empty request
-function! s:initRequest()
-    let request={}
-    let request.a=0
-    let request.q=0
-    let request.s=0
-    let request.comments=g:CheatSheetShowCommentsByDefault
-    let request.ft=&ft
-    let request.isCheatSheet=0
-    let request.appendpos=0
-    let request.numLines=0
-    let request.mode=g:CheatSheetDefaultMode
-    let request.useFt=1
-    return request
-endfunction
-
 " Handle a cheat query
 " Args :
 "       query       : the text query
@@ -290,7 +203,6 @@ function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
                     \' use <leader>KB instead', 'e')
         return
     endif
-    let request=s:initRequest()
     if(a:mode == 5 )
         let query=cheat#providers#GetError()
         if(query == "")
@@ -306,12 +218,7 @@ function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
         endif
     endif
 
-    if(a:isplusquery == '!')
-        " No explicit query, prepare query from selection
-        let request.query=query
-    else
-        let request=s:requestFromQuery(query, request)
-    endif
+    let request=cheat#requests#init(query,a:isplusquery != '!')
 
     " Reactivate history if required
     let s:isInHistory=0
@@ -399,7 +306,7 @@ endfunction
 function! s:handleRequest(request)
     call s:saveRequest(a:request)
     let s:oldbuf=winnr()
-    let query=s:queryFromRequest(a:request)
+    let query=cheat#requests#toquery(a:request)
 
     if(a:request.mode == 2)
         " Pager
