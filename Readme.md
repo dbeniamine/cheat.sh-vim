@@ -32,6 +32,7 @@ Or, if you want to scroll and/or pause, the same on YouTube:
 
 + Browse existing cheat sheets from cheat.sh directly from vim
 + Get answers on any programming question directly on your vim with simple mappings
++ Answers depends of your current filetype or framework
 + Send compilation / syntax error to cht.sh and get answers
 + Manage session id to replay last query from other cht.sh clients
 + Quick navigation through answers
@@ -71,9 +72,44 @@ sheets or write your own [query](https://github.com/chubin/cheat.sh#search).
 + They also take a `bang` that make same transform the query into a plus query:
 for instance : `:Cheat! factory` is the same as `:Cheat &ft/factory+`.
 
+#### Frameworks
+
+If you are editing a `python` file, cheat.sh-vim will send query on the `python`
+section, but if you are using a framework, let say `django`, you might want
+answers specific to this framework.
+
+Just hit:
+
+    <leader>Kf
+
+to change your query filetype to the next framework defined for your current
+filetype. If their is no next framework, queries are back on your current
+filetype.
+
+To cycle the opposite way, you can do : `<leader>KF` and `<leader>Kt` to go
+back to the filetype instead of frameworks
+
+The list of frameworks is far from being exhaustive, and you can extend it quite
+easily, just add the following to you `vimrc` and adapt it to your needs :
+
+    let g:CheatSheetFrameworks = {
+                \ 'python' : ['python', 'django', ],
+                \ 'javascript' : ['javascript', 'node', 'angular', 'jquery'],
+                \ 'php' : ['php', 'symphony', 'yii', 'zend'],
+                \}
+
+If you want to set automatically the Framework when you open some file, you
+can use the following in an `autocommand` (adapt to your needs) :
+
+    let b:CheatSheetCurrentFramework =index(g:CheatSheetFrameworks['php'], 'yii')
+
+
+Please open an issue (gitlab) or a PR (github) / MR (gitlab) for adding
+Frameworks.
+
 #### Ids
 
-It also provides the `:CheatId` command to manage ids :
+The `:CheatId` command can be used to manage ids :
 
     :Cheat[!] [newid]         " Generates a new id or set id to newid
                               " Id will not be overwritten if ! is not given

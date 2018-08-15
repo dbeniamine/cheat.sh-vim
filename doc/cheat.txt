@@ -1,19 +1,20 @@
-*cheat.sh*
+*cheat.sh-vim* ~
 
 This is a vim plugin to browse cheat sheet from
 cheat.sh (https://github.com/chubin/cheat.sh) directly from vim.
 
 ===============================================================================
-Features                                                    *cheat.sh-features*
+Features                                                    *cheat.sh-features* ~
 
 
 + Browse existing cheat sheets from cheat.sh directly from vim
 + Get answers on any programming question directly on your vim with simple mappings
++ Answers depends of your current filetype or framework see |cheat.sh-frameworks|
 + Send compilation / syntax error to cht.sh and get answers
 + Quick navigation through answers
 + Everything is configurable
 
-How to use it                                             *cheat.sh-how-to-use*
+How to use it                                             *cheat.sh-how-to-use* ~
 
 The easiest way to use this plugin is to use one of the following mappings :
 The easiest way to use this plugin is to use one of the following mappings :
@@ -48,7 +49,41 @@ sheets or write your own [query](https://github.com/chubin/cheat.sh#search).
 + They also take a `bang` that make same transform the query into a plus query:
 for instance : `:Cheat! factory` is the same as `:Cheat &ft/factory+`.
 
-Ids                                                              *cheat.sh-ids*
+Frameworks                                                *cheat.sh-frameworks* ~
+
+If you are editing a `python` file, cheat.sh-vim will send query on the `python`
+section, but if you are using a framework, let say `django`, you might want
+answers specific to this framework.
+
+Just hit:
+
+    <leader>Kf
+
+to change your query filetype to the next framework defined for your current
+filetype. If their is no next framework, queries are back on your current
+filetype.
+
+To cycle the opposite way, you can do : `<leader>KF` and `<leader>Kt` to go
+back to the filetype instead of frameworks
+
+The list of frameworks is far from being exhaustive, and you can extend it quite
+easily, just add the following to you `vimrc` and adapt it to your needs :
+>
+    let g:CheatSheetFrameworks = {
+                \ 'python' : ['python', 'django', ],
+                \ 'javascript' : ['javascript', 'node', 'angular', 'jquery'],
+                \ 'php' : ['php', 'symphony', 'yii', 'zend'],
+                \}
+<
+If you want to set automatically the Framework when you open some file, you
+can use the following in an |autocommand| (adapt to your needs) :
+>
+    let b:CheatSheetCurrentFramework = index(g:CheatSheetFrameworks.php, 'yii')
+<
+Please open an issue (gitlab) or a PR (github) / MR (gitlab) for adding
+Frameworks.
+
+Ids                                                              *cheat.sh-ids* ~
 
 You can manage ids through the  `:CheatId` command :
 
@@ -58,7 +93,7 @@ You can manage ids through the  `:CheatId` command :
 
 Id is used to replay query from different clients
 
-Errors                                                        *cheat.sh-errors*
+Errors                                                        *cheat.sh-errors* ~
 
 Cheat.sh-vim can directly send the syntaxt and compilation errors / warning to
 cht.sh. To do so, hit `<leader>KE` or run `:CheatError`.
@@ -75,7 +110,7 @@ Where x is :
 + 2 : Use the pager
 + 3 : Append answer below current line (sounds like a bad idea)
 
-Error providers                                     *cheat.sh-errors-providers*
+Error providers                                     *cheat.sh-errors-providers* ~
 
 Currently errors are search from the quickfix, then from syntastic errors.
 To change this order :
@@ -95,7 +130,7 @@ no errors / warning
 4. Test it
 5. Do a merge request on [gitlab](https://gitlab.com/dbeniamine/cheat.sh-vim/)
 
-Syntastic hooks                                       *cheat.sh-syntastic-hook*
+Syntastic hooks                                       *cheat.sh-syntastic-hook* ~
 
 Cheat.sh-vim uses syntastic hooks to retrieve the error list, if you also need
 to use synstastic hook, make sure that your function calls ours with the initial
@@ -108,7 +143,7 @@ error list :
 
 
 
-Navigate                                                    *cheat.sh-navigate*
+Navigate                                                    *cheat.sh-navigate* ~
 
 Once you have called on of these commands, you can navigate through questions,
 answers and related with the following mappings :
@@ -150,7 +185,7 @@ goes back three answers before the current
 When navigating, the same mode (pager, buffer, replace) is used as for the last
 request.
 
-Notes                                                          *cheat.sh-notes*
+Notes                                                          *cheat.sh-notes* ~
 
 + `<leader>` is usually '\', see |<leader>|
 + **This plugin is still in beta, Replace mode might remove some of your code,
@@ -167,7 +202,7 @@ For more info on cheat sheet source, see
 cheat.sh (https://github.com/chubin/cheat.sh).
 
 ==============================================================================
-Configuration                                          *cheat.sh-configuration*
+Configuration                                          *cheat.sh-configuration* ~
 
 Every parameter used to retrieve and display the cheat sheet can be changed,
 to do so, just put the following in you vimrc and ajust to your needs (these
@@ -231,7 +266,7 @@ To disable the replacement of man by cheat sheets :
 <
 
 ==============================================================================
-Licence                                                      *cheat.sh-licence*
+Licence                                                      *cheat.sh-licence* ~
 
 This plugin is distributed under GPL Licence v3.0, see
 https://www.gnu.org/licenses/gpl.txt
