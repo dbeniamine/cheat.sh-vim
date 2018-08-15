@@ -1,11 +1,12 @@
-cheat.sh	cheat.txt	/*cheat.sh*
 cheat.sh-configuration	cheat.txt	/*cheat.sh-configuration*
 cheat.sh-errors	cheat.txt	/*cheat.sh-errors*
 cheat.sh-errors-providers	cheat.txt	/*cheat.sh-errors-providers*
 cheat.sh-features	cheat.txt	/*cheat.sh-features*
+cheat.sh-frameworks	cheat.txt	/*cheat.sh-frameworks*
 cheat.sh-how-to-use	cheat.txt	/*cheat.sh-how-to-use*
 cheat.sh-ids	cheat.txt	/*cheat.sh-ids*
 cheat.sh-licence	cheat.txt	/*cheat.sh-licence*
 cheat.sh-navigate	cheat.txt	/*cheat.sh-navigate*
 cheat.sh-notes	cheat.txt	/*cheat.sh-notes*
 cheat.sh-syntastic-hook	cheat.txt	/*cheat.sh-syntastic-hook*
+cheat.sh-vim	cheat.txt	/*cheat.sh-vim*

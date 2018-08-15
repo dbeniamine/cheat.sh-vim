@@ -19,7 +19,6 @@
 let save_cpo = &cpo
 set cpo&vim
 
-
 " Transforms a high level request into a query ready to be processed by cht.sh
 function! cheat#requests#toquery(request)
     if(a:request.useFt == 1)
@@ -97,7 +96,7 @@ function! cheat#requests#init(query, parseQuery)
     			\'q' : 0,
     			\'s' : 0,
     			\'comments' : g:CheatSheetShowCommentsByDefault,
-    			\'ft' : &ft,
+    			\'ft' : cheat#frameworks#getFt(),
     			\'isCheatSheet' : 0,
     			\'appendpos' : 0,
     			\'numLines' : 0,

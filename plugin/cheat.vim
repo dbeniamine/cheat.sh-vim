@@ -132,6 +132,21 @@ if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
     vnoremap <script> <silent> <leader>KSN :call cheat#navigate(1,'S')<CR>
     nnoremap <script> <silent> <leader>KSP :call cheat#navigate(-1,'S')<CR>
     vnoremap <script> <silent> <leader>KSP :call cheat#navigate(-1,'S')<CR>
+
+    " Frameworks switch
+    nnoremap <script> <silent> <leader>Kf
+                \ :call cheat#frameworks#cycle(1)<CR>
+    vnoremap <script> <silent> <leader>Kf
+                \ :call cheat#frameworks#cycle(1)<CR>
+    nnoremap <script> <silent> <leader>KF
+                \ :call cheat#frameworks#cycle(-1)<CR>
+    vnoremap <script> <silent> <leader>KF
+                \ :call cheat#frameworks#cycle(-1)<CR>
+    nnoremap <script> <silent> <leader>Kt
+                \ :call cheat#frameworks#cycle(0)<CR>
+    vnoremap <script> <silent> <leader>Kt
+                \ :call cheat#frameworks#cycle(0)<CR>
+
 endif
 
 try
