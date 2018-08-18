@@ -39,7 +39,7 @@ if(!exists("b:CheatSheetCurrentFramework"))
     let b:CheatSheetCurrentFramework = 0
 endif
 
-function! cheat#frameworks#autodetect()
+function! cheat#frameworks#autodetect(print)
     if(!has_key(g:CheatSheetFrameworks, &ft))
         return
     endif
@@ -67,6 +67,11 @@ function! cheat#frameworks#autodetect()
     " Set framework
     let b:CheatSheetCurrentFramework = index(g:CheatSheetFrameworks[&ft],
                 \framework)
+
+    if(a:print)
+        call cheat#echo('Language for cheat queries changed to : "'.
+                    \cheat#frameworks#getFt().'"', 's')
+    endif
 endfunction
 
 " Try to use a framework if defined or return current filetype
