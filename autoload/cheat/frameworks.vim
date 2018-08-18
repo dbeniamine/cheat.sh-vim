@@ -51,7 +51,19 @@ function! cheat#frameworks#autodetect(print)
             let value=g:CheatSheetFrameworkDetectionMethods[fm].value
             let found=0
             if(type == 'file')
-                silent let ret=system('find . -name '.shellescape(value))
+                let dir=expand('%:p:h')
+                silent let ret=system('find '.shellescape(dir).' -name '.shellescape(value).' 2>/dev/null')
+                " Backward search
+                if ret == ""
+                    let dirs=""
+                    let parent=substitute(dir, '/[^/]*$', '', '')
+                    while parent !=  ""
+                        let dirs.=" ".shellescape(parent)
+                        let parent=substitute(parent, '/[^/]*$', '', '')
+                    endwhile
+                    silent let ret=system('find '.dirs.' -maxdepth 1 -name '.shellescape(value))
+                    echo ret
+                endif
                 let found = ret != ""
             elseif(type == 'search')
                 let found = search(value, 'cnw')
