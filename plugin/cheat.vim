@@ -146,7 +146,15 @@ if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
                 \ :call cheat#frameworks#cycle(0)<CR>
     vnoremap <script> <silent> <leader>Kt
                 \ :call cheat#frameworks#cycle(0)<CR>
+    nnoremap <script> <silent> <leader>KT
+                \ :call cheat#frameworks#autodetect(1)<CR>
+    vnoremap <script> <silent> <leader>KT
+                \ :call cheat#frameworks#autodetect(1)<CR>
+endif
 
+if(!exists("g:CheatSheetDisableFrameworkDetection")
+            \ || g:CheatSheetDisableFrameworkDetection == 0)
+    autocmd! BufReadPost,BufNewFile * call cheat#frameworks#autodetect(0)
 endif
 
 try
