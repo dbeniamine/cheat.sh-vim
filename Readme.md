@@ -74,40 +74,61 @@ for instance : `:Cheat! factory` is the same as `:Cheat &ft/factory+`.
 
 #### Frameworks
 
-If you are editing a `python` file, cheat.sh-vim will send query on the `python`
-section, but if you are using a framework, let say `django`, you might want
-answers specific to this framework.
+#### Ids
 
-Just hit:
+When you open a buffer, cheat.sh-vim will try to guess if you are using a
+framework  and if a framework is found, it will send queries using your
+framework instead of your filetype.
 
-    <leader>Kf
+There are also some mappings to change the current framework :
 
-to change your query filetype to the next framework defined for your current
-filetype. If their is no next framework, queries are back on your current
-filetype.
+ + `<leader>Kt` : Use filetype instead of framework
+ + `<leader>KT` : Use autodetected framework
+ + `<leader>Kf` : Use next defined framework for current filetype
+ + `<leader>KF` : Use previous defined framework for current filetype
 
-To cycle the opposite way, you can do : `<leader>KF` and `<leader>Kt` to go
-back to the filetype instead of frameworks
-
-The list of frameworks is far from being exhaustive, and you can extend it quite
-easily, just add the following to you `vimrc` and adapt it to your needs :
-
+The available Frameworks can be overriden with the following code (adapt to
+your needs) :
+```viml
     let g:CheatSheetFrameworks = {
                 \ 'python' : ['python', 'django', ],
                 \ 'javascript' : ['javascript', 'node', 'angular', 'jquery'],
                 \ 'php' : ['php', 'symphony', 'yii', 'zend'],
                 \}
+```
 
-If you want to set automatically the Framework when you open some file, you
-can use the following in an `autocommand` (adapt to your needs) :
+As you can see the list is far from being exhaustive, please contribute if you
+modify it (see below).
 
-    let b:CheatSheetCurrentFramework =index(g:CheatSheetFrameworks['php'], 'yii')
+##### Frameworks Detection
 
+This functionnality is in early stage and help is wanted to improve it.
+To detect framework, the plugin go through the list of defined framework for
+the current filetype. The following dictionnary tells the plugin how to detect
+a few frameworks.
+```viml
+    let g:CheatSheetFrameworkDetectionMethods = {
+                    \'django' : { 'type' : 'file', 'value' : 'manage.py' },
+                    \'symfony' : { 'type' : 'file', 'value' : 'symfony.phar' },
+                    \'jquery' : {'type' :'search', 'value' : 'jquery.*\.js'},
+                    \}
+```
 
-Please open an issue (gitlab) or a PR (github) / MR (gitlab) for adding
-Frameworks.
+This dictionnary can be overriden by the user.
 
-#### Ids
+There are three types of detections :
+
+1. 'file' : 'value' is an argument for the `find` command to locate a file
+`find . -name "value"`
+2. 'search', 'value' is a pattern that should be present in the current file
+3. 'func' : 'value' is the name of a user defined function which should return
+something true if the framework is detected. The function takes one argument
+which is the name of the framework we are currently testing for.
+
+Please report any contribution on [this
+issue](https://gitlab.com/dbeniamine/cheat.sh-vim/issues/51#note_95268282), or
+do MR (PR) on gitlab (resp github) :
+
 
 The `:CheatId` command can be used to manage ids :
 

@@ -149,6 +149,11 @@ if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
 
 endif
 
+if(!exists("g:CheatSheetDisableFrameworkDetection")
+            \ || g:CheatSheetDisableFrameworkDetection == 0)
+    autocmd! BufReadPost,BufNewFile * call cheat#frameworks#autodetect()
+endif
+
 try
     function SyntasticCheckHook(errors)
         call cheat#providers#syntastic#Hook(a:errors)

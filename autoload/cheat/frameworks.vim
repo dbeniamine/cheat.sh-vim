@@ -23,13 +23,51 @@ if(!exists("g:CheatSheetFrameworks"))
     let g:CheatSheetFrameworks = {
                 \ 'python' : [ 'python', 'django', ],
                 \ 'javascript' : ['javscript', 'node', 'angular', 'jquery'],
-                \ 'php' : ['php', 'symphony', 'yii', 'zend'],
+                \ 'php' : ['php', 'symfony', 'yii', 'zend'],
+                \}
+endif
+
+if(!exists("g:CheatSheetFrameworkDetectionMethods"))
+    let g:CheatSheetFrameworkDetectionMethods = {
+                \'django' : { 'type' : 'file', 'value' : 'manage.py' },
+                \'symfony' : { 'type' : 'file', 'value' : 'symfony.phar' },
+                \'jquery' : {'type' :'search', 'value' : 'jquery.*\.js'},
                 \}
 endif
 
 if(!exists("b:CheatSheetCurrentFramework"))
     let b:CheatSheetCurrentFramework = 0
 endif
+
+function! cheat#frameworks#autodetect()
+    if(!has_key(g:CheatSheetFrameworks, &ft))
+        return
+    endif
+    let framework = &ft
+    " Try autodetect
+    for fm in g:CheatSheetFrameworks[&ft]
+        if(has_key(g:CheatSheetFrameworkDetectionMethods, fm))
+            let type=g:CheatSheetFrameworkDetectionMethods[fm].type
+            let value=g:CheatSheetFrameworkDetectionMethods[fm].value
+            let found=0
+            if(type == 'file')
+                silent let ret=system('find . -name '.shellescape(value))
+                let found = ret != ""
+            elseif(type == 'search')
+                let found = search(value, 'cnw')
+            elseif(type == 'func')
+                let found = function("value")(fm)
+            endif
+            if(found)
+                let framework=fm
+                break
+            endif
+        endif
+    endfor
+    " Set framework
+    let b:CheatSheetCurrentFramework = index(g:CheatSheetFrameworks[&ft],
+                \framework)
+endfunction
 
 " Try to use a framework if defined or return current filetype
 function! cheat#frameworks#getFt()
