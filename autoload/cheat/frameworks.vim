@@ -22,7 +22,7 @@ set cpo&vim
 if(!exists("g:CheatSheetFrameworks"))
     let g:CheatSheetFrameworks = {
                 \ 'python' : [ 'python', 'django', ],
-                \ 'javascript' : ['javscript', 'node', 'angular', 'jquery'],
+                \ 'javascript' : ['javascript', 'node', 'angular', 'jquery'],
                 \ 'php' : ['php', 'symfony', 'yii', 'zend'],
                 \}
 endif
@@ -39,6 +39,33 @@ if(!exists("b:CheatSheetCurrentFramework"))
     let b:CheatSheetCurrentFramework = 0
 endif
 
+function! s:Detectfromfile(value, fm)
+    let dir=expand('%:p:h')
+    " Forward search
+    silent let ret=system('find '.shellescape(dir).' -name '.
+                \shellescape(a:value).' 2>/dev/null')
+    " Backward search
+    if ret == ""
+        let dirs=""
+        let parent=substitute(dir, '/[^/]*$', '', '')
+        while parent !=  ""
+            let dirs.=" ".shellescape(parent)
+            let parent=substitute(parent, '/[^/]*$', '', '')
+        endwhile
+        silent let ret=system('find '.dirs.' -maxdepth 1 -name '.
+                    \shellescape(a:value).' 2>/dev/null')
+    endif
+    return ret != ""
+endfunction
+
+function! s:Detectfromsearch(value, fm)
+    return search(a:value, 'cnw')
+endfunction
+
+function! s:Detectfromfunc(value, fm)
+    return function(a:value)(a:fm)
+endfunction
+
 function! cheat#frameworks#autodetect(print)
     if(!has_key(g:CheatSheetFrameworks, &ft))
         return
@@ -46,34 +73,13 @@ function! cheat#frameworks#autodetect(print)
     let framework = &ft
     " Try autodetect
     for fm in g:CheatSheetFrameworks[&ft]
-        if(has_key(g:CheatSheetFrameworkDetectionMethods, fm))
-            let type=g:CheatSheetFrameworkDetectionMethods[fm].type
-            let value=g:CheatSheetFrameworkDetectionMethods[fm].value
-            let found=0
-            if(type == 'file')
-                let dir=expand('%:p:h')
-                silent let ret=system('find '.shellescape(dir).' -name '.shellescape(value).' 2>/dev/null')
-                " Backward search
-                if ret == ""
-                    let dirs=""
-                    let parent=substitute(dir, '/[^/]*$', '', '')
-                    while parent !=  ""
-                        let dirs.=" ".shellescape(parent)
-                        let parent=substitute(parent, '/[^/]*$', '', '')
-                    endwhile
-                    silent let ret=system('find '.dirs.' -maxdepth 1 -name '.shellescape(value))
-                    echo ret
-                endif
-                let found = ret != ""
-            elseif(type == 'search')
-                let found = search(value, 'cnw')
-            elseif(type == 'func')
-                let found = function("value")(fm)
-            endif
-            if(found)
-                let framework=fm
-                break
-            endif
+        if(has_key(g:CheatSheetFrameworkDetectionMethods, fm) &&
+                    \ function("s:Detectfrom".
+                    \g:CheatSheetFrameworkDetectionMethods[fm].type)(
+                    \g:CheatSheetFrameworkDetectionMethods[fm].value, fm)
+                    \)
+            let framework=fm
+            break
         endif
     endfor
     " Set framework
