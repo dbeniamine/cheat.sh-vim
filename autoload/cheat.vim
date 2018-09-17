@@ -218,26 +218,31 @@ function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
         endif
     endif
 
-    let request=cheat#requests#init(query,a:isplusquery != '!')
-
     " Reactivate history if required
     let s:isInHistory=0
-    if(a:mode != 5)
-        let request.mode=a:mode
-    endif
+    call s:handleRequest(cheat#requests#init(query,a:mode, a:isplusquery != '!'))
+endfunction
 
-    " Set append pos / remove query if required
-    if(request.mode == 1)
-        call cheat#echo('removing lines', 'e')
-        normal dd
-        let request.appendpos=getcurpos()[1]-1
-    elseif(request.mode == 3)
-        let request.appendpos=getcurpos()[1]
-    elseif(request.mode == 4)
-        let request.appendpos=getcurpos()[1]-1
+function! cheat#howin(query, froml, tol, range)
+    let mode=g:CheatSheetDefaultMode
+    if(mode ==2 && s:isNeovim == 1)
+        call cheat#echo('Pager mode does not work with neovim'.
+                    \' use <leader>KB instead', 'e')
+        return
     endif
-
-    call s:handleRequest(request)
+    if(a:query == "")
+        let query=substitute(s:get_visual_selection(a:froml,a:tol, a:range),
+                    \'^\s*', '', '')
+    else
+        let query=a:query
+    endif
+    let ft=substitute(query, '^\s*\(\S*\)\s.*', '\1', '')
+    let query=substitute(query, '^\s*\S*\s\s*\(.*\)', '\1', '')
+    " Reactivate history if required
+    let s:isInHistory=0
+    let req=cheat#requests#init(query,mode,0)
+    let req.ft=ft
+    call s:handleRequest(req)
 endfunction
 
 " Prints a message about the query to be prossessed

@@ -90,7 +90,7 @@ endfunction
 
 
 " Prepare an empty request
-function! cheat#requests#init(query, parseQuery)
+function! cheat#requests#init(query, mode, parseQuery)
     let request={
                 \'a' : 0,
     			\'q' : 0,
@@ -104,6 +104,21 @@ function! cheat#requests#init(query, parseQuery)
     			\'useFt' : 1,
                 \'query' : a:query,
                 \}
+    if(a:mode != 5)
+        let request.mode=a:mode
+    endif
+
+    " Set append pos / remove query if required
+    if(request.mode == 1)
+        call cheat#echo('removing lines', 'e')
+        normal dd
+        let request.appendpos=getcurpos()[1]-1
+    elseif(request.mode == 3)
+        let request.appendpos=getcurpos()[1]
+    elseif(request.mode == 4)
+        let request.appendpos=getcurpos()[1]-1
+    endif
+
     if(a:parseQuery)
         call s:parseQuery(a:query, request)
     endif
