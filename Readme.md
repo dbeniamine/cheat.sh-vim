@@ -72,6 +72,14 @@ sheets or write your own [query](https://github.com/chubin/cheat.sh#search).
 + They also take a `bang` that make same transform the query into a plus query:
 for instance : `:Cheat! factory` is the same as `:Cheat &ft/factory+`.
 
+#### HowIn
+
+The `:HowIn` command works like `:Cheat` but without the `bang` the first word
+of your query should be a language (vim filetype).
+
+It shows how to do something in a given language.
+
+
 #### Frameworks
 
 #### Ids
