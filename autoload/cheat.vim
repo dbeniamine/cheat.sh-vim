@@ -211,8 +211,7 @@ function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
         endif
     else
         if(a:query == "")
-            let query=substitute(s:get_visual_selection(a:froml,a:tol, a:range),
-                        \'^\s*', '', '')
+            let query=s:get_visual_selection(a:froml,a:tol, a:range)
         else
             let query=a:query
         endif
@@ -230,14 +229,13 @@ function! cheat#howin(query, froml, tol, range)
                     \' use <leader>KB instead', 'e')
         return
     endif
-    if(a:query == "")
-        let query=substitute(s:get_visual_selection(a:froml,a:tol, a:range),
-                    \'^\s*', '', '')
+    let query = split(a:query)
+    let ft=query[0]
+    if(len(query) == 1)
+        let query=s:get_visual_selection(a:froml,a:tol, a:range)
     else
-        let query=a:query
+        let query=join(query[1:], ' ')
     endif
-    let ft=substitute(query, '^\s*\(\S*\)\s.*', '\1', '')
-    let query=substitute(query, '^\s*\S*\s\s*\(.*\)', '\1', '')
     " Reactivate history if required
     let s:isInHistory=0
     let req=cheat#requests#init(query,mode,0)
@@ -380,21 +378,23 @@ function! s:get_visual_selection(froml, tol, range)
     " Why is this not a built-in Vim script function?!
     if(a:range<=0)
         if(g:CheatSheetDefaultSelection == "line")
-            return getline(a:froml)
+            let ret=getline(a:froml)
         else
-            return expand("<cword>")
+            let ret=expand("<cword>")
         endif
+    else
+        "visual mode
+        let [line_start, column_start] = getpos("'<")[1:2]
+        let [line_end, column_end] = getpos("'>")[1:2]
+        let lines = getline(line_start, line_end)
+        if len(lines) == 0
+            return ''
+        endif
+        let lines[-1] = lines[-1][: column_end - (&selection == 'inclusive' ? 1 : 2)]
+        let lines[0] = lines[0][column_start - 1:]
+        let ret= join(lines, " ")
     endif
-    "visual mode
-    let [line_start, column_start] = getpos("'<")[1:2]
-    let [line_end, column_end] = getpos("'>")[1:2]
-    let lines = getline(line_start, line_end)
-    if len(lines) == 0
-        return ''
-    endif
-    let lines[-1] = lines[-1][: column_end - (&selection == 'inclusive' ? 1 : 2)]
-    let lines[0] = lines[0][column_start - 1:]
-    return join(lines, " ")
+    return substitute(ret,'^\s*', '', '')
 endfunction
 
 function! cheat#toggleComments()
