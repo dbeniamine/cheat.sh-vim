@@ -380,7 +380,7 @@ function! s:get_visual_selection(froml, tol, range)
     " Why is this not a built-in Vim script function?!
     if(a:range<=0)
         if(g:CheatSheetDefaultSelection == "line")
-            return join(getline(a:froml, a:tol), " ")
+            return getline(a:froml)
         else
             return expand("<cword>")
         endif
