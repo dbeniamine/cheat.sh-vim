@@ -74,11 +74,26 @@ for instance : `:Cheat! factory` is the same as `:Cheat &ft/factory+`.
 
 #### HowIn
 
-The `:HowIn` command works like `:Cheat` but without the `bang` the first word
-of your query should be a language (vim filetype).
+The `:HowIn` command takes exaclty one argument.
 
-It shows how to do something in a given language.
+If the argument is one word, it is interpreted as a filetype (language), and
+the current line (or word, depending on |cheat.sh-configuration|) is sent as a
+query for this given language.
+Else the first word of the query should be a  filetype.
 
+Examples :
+
+```python
+# Current postion in the buffer :
+with open('foo') as f:
+```
+```viml
+:HowIn javascript
+```
+Or
+```viml
+:Howin javascript open file
+```
 
 #### Frameworks
 
