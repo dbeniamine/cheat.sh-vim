@@ -211,33 +211,36 @@ function! cheat#cheat(query, froml, tol, range, mode, isplusquery) range
         endif
     else
         if(a:query == "")
-            let query=substitute(s:get_visual_selection(a:froml,a:tol, a:range),
-                        \'^\s*', '', '')
+            let query=s:get_visual_selection(a:froml,a:tol, a:range)
         else
             let query=a:query
         endif
     endif
 
-    let request=cheat#requests#init(query,a:isplusquery != '!')
-
     " Reactivate history if required
     let s:isInHistory=0
-    if(a:mode != 5)
-        let request.mode=a:mode
-    endif
+    call s:handleRequest(cheat#requests#init(query,a:mode, a:isplusquery != '!'))
+endfunction
 
-    " Set append pos / remove query if required
-    if(request.mode == 1)
-        call cheat#echo('removing lines', 'e')
-        normal dd
-        let request.appendpos=getcurpos()[1]-1
-    elseif(request.mode == 3)
-        let request.appendpos=getcurpos()[1]
-    elseif(request.mode == 4)
-        let request.appendpos=getcurpos()[1]-1
+function! cheat#howin(query, froml, tol, range)
+    let mode=g:CheatSheetDefaultMode
+    if(mode ==2 && s:isNeovim == 1)
+        call cheat#echo('Pager mode does not work with neovim'.
+                    \' use <leader>KB instead', 'e')
+        return
     endif
-
-    call s:handleRequest(request)
+    let query = split(a:query)
+    let ft=query[0]
+    if(len(query) == 1)
+        let query=s:get_visual_selection(a:froml,a:tol, a:range)
+    else
+        let query=join(query[1:], ' ')
+    endif
+    " Reactivate history if required
+    let s:isInHistory=0
+    let req=cheat#requests#init(query,mode,0)
+    let req.ft=ft
+    call s:handleRequest(req)
 endfunction
 
 " Prints a message about the query to be prossessed
@@ -375,21 +378,23 @@ function! s:get_visual_selection(froml, tol, range)
     " Why is this not a built-in Vim script function?!
     if(a:range<=0)
         if(g:CheatSheetDefaultSelection == "line")
-            return join(getline(a:froml, a:tol), " ")
+            let ret=getline(a:froml)
         else
-            return expand("<cword>")
+            let ret=expand("<cword>")
         endif
+    else
+        "visual mode
+        let [line_start, column_start] = getpos("'<")[1:2]
+        let [line_end, column_end] = getpos("'>")[1:2]
+        let lines = getline(line_start, line_end)
+        if len(lines) == 0
+            return ''
+        endif
+        let lines[-1] = lines[-1][: column_end - (&selection == 'inclusive' ? 1 : 2)]
+        let lines[0] = lines[0][column_start - 1:]
+        let ret= join(lines, " ")
     endif
-    "visual mode
-    let [line_start, column_start] = getpos("'<")[1:2]
-    let [line_end, column_end] = getpos("'>")[1:2]
-    let lines = getline(line_start, line_end)
-    if len(lines) == 0
-        return ''
-    endif
-    let lines[-1] = lines[-1][: column_end - (&selection == 'inclusive' ? 1 : 2)]
-    let lines[0] = lines[0][column_start - 1:]
-    return join(lines, " ")
+    return substitute(ret,'^\s*', '', '')
 endfunction
 
 function! cheat#toggleComments()

@@ -57,6 +57,10 @@ command! -nargs=1 CheatSeeAlso call cheat#navigate(<q-args>, 'S')
 command! -nargs=1 CheatHistory call cheat#navigate(<q-args>, 'H')
 command! -nargs=? -bang CheatId call cheat#session#id(<q-args>, "<bang>")
 
+
+command! -nargs=1 -bang -count -complete=custom,cheat#completeargs HowIn
+    \ call cheat#howin(<q-args>, <line1>, <line2>, <count>)
+
 if((!exists("g:CheatDoNotReplaceKeywordPrg") ||
             \ g:CheatDoNotReplaceKeywordPrg ==0))
     if(has("patch-7.4.1833"))

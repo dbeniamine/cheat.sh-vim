@@ -74,6 +74,29 @@ sheets or write your own [query](https://github.com/chubin/cheat.sh#search).
 + They also take a `bang` that make same transform the query into a plus query:
 for instance : `:Cheat! factory` is the same as `:Cheat &ft/factory+`.
 
+#### HowIn
+
+The `:HowIn` command takes exaclty one argument.
+
+If the argument is one word, it is interpreted as a filetype (language), and
+the current line (or word, depending on |cheat.sh-configuration|) is sent as a
+query for this given language.
+Else the first word of the query should be a  filetype.
+
+Examples :
+
+```python
+# Current postion in the buffer :
+with open('foo') as f:
+```
+```viml
+:HowIn javascript
+```
+Or
+```viml
+:Howin javascript open file
+```
+
 #### Frameworks
 
 #### Ids
