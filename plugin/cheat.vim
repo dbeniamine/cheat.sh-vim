@@ -158,7 +158,10 @@ endif
 
 if(!exists("g:CheatSheetDisableFrameworkDetection")
             \ || g:CheatSheetDisableFrameworkDetection == 0)
-    autocmd! BufReadPost,BufNewFile * call cheat#frameworks#autodetect(0)
+    augroup cheat_group
+        autocmd!
+        autocmd BufReadPost,BufNewFile * call cheat#frameworks#autodetect(0)
+    augroup END
 endif
 
 try
