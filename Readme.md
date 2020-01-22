@@ -1,4 +1,4 @@
-*This repository is a mirror, for developpement and issues, please go to [gitlab](https://gitlab.com/dbeniamine/cheat.sh-vim/)*
+*This repository is a mirror, for development and issues, please go to [gitlab](https://gitlab.com/dbeniamine/cheat.sh-vim/)*
 
 # Vim Cheat.sh
 
