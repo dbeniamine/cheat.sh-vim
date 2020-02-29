@@ -332,7 +332,11 @@ function! s:handleRequest(request)
     let s:lines = []
     let has_job=has('job')
     let curl=s:getUrl(query, has_job)
-    if(has_job)
+    if has('nvim')
+        let s:job = jobstart(curl,
+                    \ {"on_stdout": "cheat#handleRequestOutput",
+                    \ "on_exit": "cheat#printAnswer"})
+    elseif(has_job)
         " Asynchronous curl
         let s:job = job_start(curl,
                     \ {"callback": "cheat#handleRequestOutput",
@@ -345,7 +349,7 @@ function! s:handleRequest(request)
     endif
 endfunction
 
-function! cheat#printAnswer(channel)
+function! cheat#printAnswer(channel, ...)
     let request=s:lastRequest()
     if(request.mode == 0)
         call cheat#createOrSwitchToBuffer()
@@ -359,18 +363,27 @@ function! cheat#printAnswer(channel)
     execute s:oldbuf . 'wincmd w'
     " Clean stuff
     if(exists('s:job'))
-        call job_stop(s:job)
+        if has('nvim')
+            call jobstop(s:job)
+        else
+            call job_stop(s:job)
+        endif
         unlet s:job
     endif
     unlet s:lines
 endfunction
 
 " Read answer line by line
-function! cheat#handleRequestOutput(channel, msg)
-    if(a:msg == "DETACH")
-        return
+function! cheat#handleRequestOutput(channel, msg, ...)
+    if has('nvim')
+        let eof = (a:msg == [''])
+        call extend(s:lines, a:msg[1:])
+    else
+        if a:msg == "DETACH"
+            return
+        endif
+        call add(s:lines, a:msg)
     endif
-    call add(s:lines, a:msg)
 endfunction
 
 " Returns the text that is currently selected
