@@ -68,12 +68,10 @@ endif
 
 if(has('nvim'))
     let s:jobstart="jobstart"
-    let s:jobstop="jobstop"
     let s:joboutput = "on_stdout"
     let s:jobexit = "on_exit"
 else
     let s:jobstart="job_start"
-    let s:jobstop="job_stop"
     let s:joboutput = "callback"
     let s:jobexit = "close_cb"
 endif
@@ -346,7 +344,7 @@ function! s:handleRequest(request)
     let curl=s:getUrl(query, has_job)
     if(has_job)
         " Asynchronous curl
-        let s:job = function(s:jobstart)(curl,
+        call function(s:jobstart)(curl,
                     \ {s:joboutput: "cheat#handleRequestOutput",
                     \ s:jobexit: "cheat#printAnswer"})
 
@@ -370,11 +368,6 @@ function! cheat#printAnswer(channel, ...)
         normal Gddgg
     endif
     execute s:oldbuf . 'wincmd w'
-    " Clean stuff
-    if(exists('s:job'))
-        call function(s:jobstop)(s:job)
-        unlet s:job
-    endif
     unlet s:lines
 endfunction
 
