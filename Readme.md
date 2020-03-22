@@ -336,6 +336,8 @@ the default values that will be used if you do not change them) :
      Path to cheat sheet cookie
     let g:CheatSheetIdPath=expand('~/.cht.sh/id')
 
+    " Make plugin silent by  setting bellow variable to 1
+    let g:CheatSheetSilent=0
 
 
 You can also disable the mappings (see plugin/cheat.vim to redo the mappings

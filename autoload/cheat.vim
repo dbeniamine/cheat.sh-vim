@@ -66,6 +66,16 @@ if(!exists("s:isNeovim"))
     let s:isNeovim = (match(ver, 'NVIM')!=-1)
 endif
 
+if(has('nvim'))
+    let s:jobstart="jobstart"
+    let s:joboutput = "on_stdout"
+    let s:jobexit = "on_exit"
+else
+    let s:jobstart="job_start"
+    let s:joboutput = "callback"
+    let s:jobexit = "close_cb"
+endif
+
 let s:history=[]
 let s:histPos=-1
 
@@ -82,6 +92,9 @@ endfunction
 
 " Print nice messages
 function! cheat#echo(msg,type)
+  if (exists('g:CheatSheetSilent') && g:CheatSheetSilent == 1 && index(['e', 'w', 'q'], a:type) < 0)
+      return
+  endif
   if a:type=='e'
     let group='ErrorMsg'
   elseif a:type=='w'
@@ -330,13 +343,14 @@ function! s:handleRequest(request)
 
     call s:displayRequestMessage(a:request)
     let s:lines = []
-    let has_job=has('job')
+    let has_job = has('job') || has('nvim')
     let curl=s:getUrl(query, has_job)
     if(has_job)
         " Asynchronous curl
-        let s:job = job_start(curl,
-                    \ {"callback": "cheat#handleRequestOutput",
-                    \ "close_cb": "cheat#printAnswer"})
+        call function(s:jobstart)(curl,
+                    \ {s:joboutput: "cheat#handleRequestOutput",
+                    \ s:jobexit: "cheat#printAnswer"})
+
     else
         " Synchronous curl
         let s:lines=systemlist(curl)
@@ -345,7 +359,7 @@ function! s:handleRequest(request)
     endif
 endfunction
 
-function! cheat#printAnswer(channel)
+function! cheat#printAnswer(channel, ...)
     let request=s:lastRequest()
     if(request.mode == 0)
         call cheat#createOrSwitchToBuffer()
@@ -357,20 +371,18 @@ function! cheat#printAnswer(channel)
         normal Gddgg
     endif
     execute s:oldbuf . 'wincmd w'
-    " Clean stuff
-    if(exists('s:job'))
-        call job_stop(s:job)
-        unlet s:job
-    endif
     unlet s:lines
 endfunction
 
 " Read answer line by line
-function! cheat#handleRequestOutput(channel, msg)
-    if(a:msg == "DETACH")
-        return
+function! cheat#handleRequestOutput(channel, msg, ...)
+    if has('nvim')
+        call extend(s:lines, a:msg[1:])
+    else
+        if a:msg != "DETACH"
+            call add(s:lines, a:msg)
+        endif
     endif
-    call add(s:lines, a:msg)
 endfunction
 
 " Returns the text that is currently selected
