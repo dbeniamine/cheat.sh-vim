@@ -92,6 +92,9 @@ endfunction
 
 " Print nice messages
 function! cheat#echo(msg,type)
+  if (exists('g:CheatSheetSilent') && g:CheatSheetSilent == 1 && index(['e', 'w', 'q'], a:type) < 0)
+      return
+  endif
   if a:type=='e'
     let group='ErrorMsg'
   elseif a:type=='w'
