@@ -74,7 +74,7 @@ for instance : `:Cheat! factory` is the same as `:Cheat &ft/factory+`.
 
 #### HowIn
 
-The `:HowIn` command takes exaclty one argument.
+The `:HowIn` command takes exactly one argument.
 
 If the argument is one word, it is interpreted as a filetype (language), and
 the current line (or word, depending on |cheat.sh-configuration|) is sent as a
@@ -84,7 +84,7 @@ Else the first word of the query should be a  filetype.
 Examples :
 
 ```python
-# Current postion in the buffer :
+# Current position in the buffer :
 with open('foo') as f:
 ```
 ```viml
@@ -110,7 +110,7 @@ There are also some mappings to change the current framework :
  + `<leader>Kf` : Use next defined framework for current filetype
  + `<leader>KF` : Use previous defined framework for current filetype
 
-The available Frameworks can be overriden with the following code (adapt to
+The available Frameworks can be overridden with the following code (adapt to
 your needs) :
 ```viml
     let g:CheatSheetFrameworks = {
@@ -125,9 +125,9 @@ modify it (see below).
 
 ##### Frameworks Detection
 
-This functionnality is in early stage and help is wanted to improve it.
+This functionality is in early stage and help is wanted to improve it.
 To detect framework, the plugin go through the list of defined framework for
-the current filetype. The following dictionnary tells the plugin how to detect
+the current filetype. The following dictionary tells the plugin how to detect
 a few frameworks.
 ```viml
     let g:CheatSheetFrameworkDetectionMethods = {
@@ -137,7 +137,7 @@ a few frameworks.
                     \}
 ```
 
-This dictionnary can be overriden by the user.
+This dictionary can be overridden by the user.
 
 There are three types of detections :
 
@@ -161,7 +161,7 @@ The `:CheatId` command can be used to manage ids :
 
 #### Errors
 
-Cheat.sh-vim can directly send the syntaxt and compilation errors / warning to
+Cheat.sh-vim can directly send the syntax and compilation errors / warning to
 cht.sh. To do so, hit `<leader>KE` or run `:CheatError`.
 
 By default, the answer will be displayed on the cheat buffer, to change this
@@ -198,7 +198,7 @@ no errors / warning
 ##### Syntastic hooks
 
 Cheat.sh-vim uses syntastic hooks to retrieve the error list, if you also need
-to use synstastic hook, make sure that your function calls ours with the initial
+to use syntastic hook, make sure that your function calls ours with the initial
 error list :
 
     function SyntasticCheckHook(errors)
@@ -285,7 +285,7 @@ Add the following to your Vundle Plugin list (not tested, but should work) :
 ## Configuration
 
 Every parameter used to retrieve and display the cheat sheet can be changed, to
-do so, just put the following in you vimrc and ajust to your needs (these are
+do so, just put the following in you vimrc and adjust to your needs (these are
 the default values that will be used if you do not change them) :
 
     " Vim command used to open new buffer
@@ -303,7 +303,7 @@ the default values that will be used if you do not change them) :
     " cheat sheet base url
     let g:CheatSheetBaseUrl='https://cht.sh'
 
-    " cheat sheet settings do not include style settings neiter comments, 
+    " cheat sheet settings do neither include style settings nor comments, 
     " see other options below
     let g:CheatSheetUrlSettings='q'
 
@@ -349,7 +349,7 @@ To disable the replacement of man by cheat sheets :
 
 ## License
 
-This plugin is distributed under GPL Licence v3.0, see
+This plugin is distributed under GPL License v3.0, see
 https://www.gnu.org/licenses/gpl.txt
 
 The demo are creative Commons, CC-SA Igor Chubin.
