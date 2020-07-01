@@ -17,7 +17,6 @@ Features                                                    *cheat.sh-features* 
 How to use it                                             *cheat.sh-how-to-use* ~
 
 The easiest way to use this plugin is to use one of the following mappings :
-The easiest way to use this plugin is to use one of the following mappings :
 
 + `K` get answer on the word under the cursor or the selection on a pager (this
 feature requires vim >= 7.4.1833, you can check if have the right version with :
