@@ -24,7 +24,7 @@ Or, if you want to scroll and/or pause, the same on YouTube:
 
 <p align="center">
   <a href="http://www.youtube.com/watch?feature=player_embedded&v=xyf6MJ0y-z8
-  " target="_blank"><img src="http://img.youtube.com/vi/xyf6MJ0y-z8/0.jpg" 
+  " target="_blank"><img src="http://img.youtube.com/vi/xyf6MJ0y-z8/0.jpg"
   alt="cheat.sh-vim: Using cheat.sh from vim" width="700" height="490" border="10" /></a>
 </p>
 
@@ -303,7 +303,7 @@ the default values that will be used if you do not change them) :
     " cheat sheet base url
     let g:CheatSheetBaseUrl='https://cht.sh'
 
-    " cheat sheet settings do neither include style settings nor comments, 
+    " cheat sheet settings do not include style settings neiter comments,
     " see other options below
     let g:CheatSheetUrlSettings='q'
 
@@ -316,6 +316,9 @@ the default values that will be used if you do not change them) :
     " Show comments in answers by default
     " (setting this to 0 means giving ?Q to the server)
     let g:CheatSheetShowCommentsByDefault=1
+
+    " Go to old buffer (set to 0 to keep focus on the cheat sheet buffer)
+    let g:CheatSheetGoToOldBuf=1
 
     " cheat sheet buffer name
     let g:CheatSheetBufferName="_cheat"
