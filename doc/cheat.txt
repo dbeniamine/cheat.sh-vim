@@ -265,7 +265,7 @@ are the default values that will be used if you do not change them) :
     " cheat sheet base url
     let g:CheatSheetBaseUrl='https://cht.sh'
 
-    " cheat sheet settings do not include style settings neiter comments, 
+    " cheat sheet settings do not include style settings neiter comments,
     " see other options below
     let g:CheatSheetUrlSettings='q'
 
@@ -278,6 +278,9 @@ are the default values that will be used if you do not change them) :
     " Show comments in answers by default
     " (setting this to 0 means giving ?Q to the server)
     let g:CheatSheetShowCommentsByDefault=1
+
+    " Go to old buffer (set to 0 to keep focus on the cheat sheet buffer)
+    let g:CheatSheetGoToOldBuf=1
 
     " cheat sheet buffer name
     let g:CheatSheetBufferName="_cheat"
