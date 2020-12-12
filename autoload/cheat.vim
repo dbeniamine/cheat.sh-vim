@@ -59,6 +59,11 @@ if(!exists("g:CheatSheetShowCommentsByDefault"))
     let g:CheatSheetShowCommentsByDefault=1
 endif
 
+" Go to old buffer
+if(!exists("g:CheatSheetStayInOrigBuf"))
+    let g:CheatSheetStayInOrigBuf=1
+endif
+
 if(!exists("s:isNeovim"))
     redir => ver
     silent version
@@ -337,7 +342,11 @@ function! s:handleRequest(request)
         " Update ft
         let ft=a:request.ft
         execute ': set ft='.ft
-        execute s:oldbuf . 'wincmd w'
+        if g:CheatSheetStayInOrigBuf != 0
+            execute s:oldbuf . 'wincmd w'
+        else
+            normal gg
+        endif
         redraw!
     endif
 
@@ -370,7 +379,11 @@ function! cheat#printAnswer(channel, ...)
     if(request.mode == 0)
         normal Gddgg
     endif
-    execute s:oldbuf . 'wincmd w'
+    if g:CheatSheetStayInOrigBuf != 0
+        execute s:oldbuf . 'wincmd w'
+    else
+        normal gg
+    endif
     unlet s:lines
 endfunction
 
