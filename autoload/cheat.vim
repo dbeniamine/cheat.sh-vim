@@ -60,8 +60,8 @@ if(!exists("g:CheatSheetShowCommentsByDefault"))
 endif
 
 " Go to old buffer
-if(!exists("g:CheatSheetGoToOldBuf"))
-    let g:CheatSheetGoToOldBuf=1
+if(!exists("g:CheatSheetStayInOrigBuf"))
+    let g:CheatSheetStayInOrigBuf=1
 endif
 
 if(!exists("s:isNeovim"))
@@ -342,7 +342,7 @@ function! s:handleRequest(request)
         " Update ft
         let ft=a:request.ft
         execute ': set ft='.ft
-        if g:CheatSheetGoToOldBuf != 0
+        if g:CheatSheetStayInOrigBuf != 0
             execute s:oldbuf . 'wincmd w'
         else
             normal gg
@@ -379,7 +379,7 @@ function! cheat#printAnswer(channel, ...)
     if(request.mode == 0)
         normal Gddgg
     endif
-    if g:CheatSheetGoToOldBuf != 0
+    if g:CheatSheetStayInOrigBuf != 0
         execute s:oldbuf . 'wincmd w'
     else
         normal gg

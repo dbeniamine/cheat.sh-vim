@@ -278,8 +278,8 @@ are the default values that will be used if you do not change them) :
     " (setting this to 0 means giving ?Q to the server)
     let g:CheatSheetShowCommentsByDefault=1
 
-    " Go to old buffer (set to 0 to keep focus on the cheat sheet buffer)
-    let g:CheatSheetGoToOldBuf=1
+    " Stay in origin buffer (set to 0 to keep focus on the cheat sheet buffer)
+    let g:CheatSheetStayInOrigBuf=1
 
     " cheat sheet buffer name
     let g:CheatSheetBufferName="_cheat"
