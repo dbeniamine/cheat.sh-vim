@@ -156,8 +156,8 @@ if(!exists("g:CheatSheetDoNotMap") || g:CheatSheetDoNotMap ==0)
                 \ :call cheat#frameworks#autodetect(1)<CR>
 endif
 
-if(!exists("g:CheatSheetDisableFrameworkDetection")
-            \ || g:CheatSheetDisableFrameworkDetection == 0)
+if(exists("g:CheatSheetDisableFrameworkDetection")
+            \ && g:CheatSheetDisableFrameworkDetection == 0)
     augroup cheat_group
         autocmd!
         autocmd BufReadPost,BufNewFile * call cheat#frameworks#autodetect(0)
