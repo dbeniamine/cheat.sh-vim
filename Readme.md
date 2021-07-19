@@ -101,6 +101,14 @@ Or
 
 #### Ids
 
+Framework detection can slow down vim openning see
+[#54](https://gitlab.com/dbeniamine/cheat.sh-vim/-/issues/54) so it has been
+disabled by default.
+
+To enable framework detection you can set the folowwing in your `vimrc`:
+
+    let g:CheatSheetDisableFrameworkDetection=0
+
 When you open a buffer, cheat.sh-vim will try to guess if you are using a
 framework  and if a framework is found, it will send queries using your
 framework instead of your filetype.
