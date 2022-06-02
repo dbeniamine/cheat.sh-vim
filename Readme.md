@@ -94,7 +94,7 @@ with open('foo') as f:
 ```
 Or
 ```viml
-:Howin javascript open file
+:HowIn javascript open file
 ```
 
 #### Frameworks
