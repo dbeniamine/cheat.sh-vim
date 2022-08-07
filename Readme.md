@@ -344,7 +344,7 @@ the default values that will be used if you do not change them) :
     " 4 => paste before query
     let g:CheatSheetDefaultMode=0
 
-     Path to cheat sheet cookie
+    " Path to cheat sheet cookie
     let g:CheatSheetIdPath=expand('~/.cht.sh/id')
 
     " Make plugin silent by  setting bellow variable to 1
